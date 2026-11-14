@@ -1,0 +1,128 @@
+@import '@fontsource-variable/manrope';
+@import '@fontsource/ibm-plex-sans-arabic/400.css';
+@import '@fontsource/ibm-plex-sans-arabic/500.css';
+@import '@fontsource/ibm-plex-sans-arabic/600.css';
+@import '@fontsource/ibm-plex-sans-arabic/700.css';
+@import 'tailwindcss';
+
+/*
+ * ─── "Blue fog" design tokens ────────────────────────────────────
+ * Two colours only — misty blue (#DCE6F2) and slate blue (#4A5D78) —
+ * plus neutral greys for text and lines. Shades below are mixes of
+ * those two, never new hues.
+ *
+ * Contrast (checked): slate/white 6.7 · slate/mist 5.3 · ink/white 15.6
+ *   muted/white 7.2 · subtle/white 4.8 · input border/white 3.1 (UI part)
+ */
+@theme {
+  --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', 'Manrope Variable', ui-sans-serif, sans-serif;
+
+  /* The two colours */
+  --color-mist: #dce6f2;
+  --color-slate: #4a5d78;
+
+  /* Derived from them (lighter mist / darker slate) */
+  --color-mist-soft: #eef3f9; /* hover rows, quiet fills */
+  --color-mist-strong: #c3d1e4; /* pressed light controls, dividers on mist */
+  --color-slate-hover: #3e4f66;
+  --color-slate-pressed: #34435a;
+  --color-slate-disabled: #a9b6c8;
+
+  /* Warning red — client decision B (14 Nov 2026): ONLY for overdue and errors.
+     6.5:1 on white, 6.0:1 on alert-soft. */
+  --color-alert: #b42318;
+  --color-alert-soft: #fef3f2;
+
+  /* Neutrals */
+  --color-canvas: #f6f8fb;
+  --color-panel: #ffffff;
+  --color-ink: #1c2430; /* main text */
+  --color-ink-muted: #4d5866;
+  --color-ink-subtle: #69737f;
+  --color-line: #dde3ea;
+  --color-line-input: #8a94a3;
+
+  /* Shape & depth */
+  --radius-control: 8px;
+  --radius-card: 14px;
+  --radius-panel: 20px;
+  --shadow-card: 0 1px 2px rgba(28, 36, 48, 0.04), 0 4px 16px rgba(74, 93, 120, 0.08);
+  --shadow-overlay: 0 16px 40px rgba(28, 36, 48, 0.18);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  :lang(ar) {
+    font-family: var(--font-arabic);
+    line-height: 1.75;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-slate);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  /* The fog: misty blue on the reading side, slate on the far side. Mirrors for Arabic. */
+  /* Phones: fog runs top → bottom, so full-width text stays on the misty top. */
+  .fog {
+    background-image: linear-gradient(
+      to bottom,
+      var(--color-mist) 0%,
+      var(--color-mist) 60%,
+      var(--color-slate) 100%
+    );
+  }
+  /* Wider screens: fog runs across, away from the reading side. */
+  @media (min-width: 640px) {
+    .fog {
+      background-image: linear-gradient(
+        to right,
+        var(--color-mist) 0%,
+        var(--color-mist) 25%,
+        var(--color-slate) 100%
+      );
+    }
+    [dir='rtl'] .fog {
+      background-image: linear-gradient(
+        to left,
+        var(--color-mist) 0%,
+        var(--color-mist) 25%,
+        var(--color-slate) 100%
+      );
+    }
+  }
+  /* A whisper of fog for large surfaces */
+  .fog-soft {
+    background-image: linear-gradient(
+      160deg,
+      var(--color-panel) 0%,
+      var(--color-mist-soft) 55%,
+      var(--color-mist) 100%
+    );
+  }
+  /* Money: tabular, aligned to the end of the column, always left-to-right */
+  .num {
+    font-family: var(--font-sans);
+    font-variant-numeric: tabular-nums;
+    text-align: end;
+    white-space: nowrap;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
