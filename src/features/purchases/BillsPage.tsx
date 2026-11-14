@@ -11,6 +11,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States'
 import { columnHelper } from '@/components/ui/table-features'
 import { formatDate } from '@/lib/dates'
 import { useLocale } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import { sum } from '@/lib/money'
 import type { Bill } from '@/types/domain'
 import { useApproveBill, useBills } from './api'
@@ -28,6 +29,7 @@ const EMPTY: Bill[] = []
 
 export function BillsPage() {
   const { t, locale } = useLocale()
+  const { can } = useSession()
   const { data = EMPTY, isPending, isError, refetch } = useBills()
   const approve = useApproveBill()
   const [filter, setFilter] = useState<Filter>('open')
@@ -73,7 +75,7 @@ export function BillsPage() {
         id: 'action',
         header: '',
         cell: (c) =>
-          c.row.original.status === 'approval' ? (
+          c.row.original.status === 'approval' && can('bills.approve') ? (
             <Button
               size="sm"
               icon={<ShieldCheck aria-hidden className="size-4" />}
@@ -87,7 +89,7 @@ export function BillsPage() {
           ) : null,
       }),
     ])
-  }, [t, locale])
+  }, [t, locale, can])
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -117,16 +119,20 @@ export function BillsPage() {
         }
         actions={
           <>
-            <ButtonLink
-              to="/bills/pay"
-              variant="secondary"
-              icon={<HandCoins aria-hidden className="size-4" />}
-            >
-              {t('bills.pay')}
-            </ButtonLink>
-            <ButtonLink to="/bills/new" icon={<Plus aria-hidden className="size-4" />}>
-              {t('bills.new')}
-            </ButtonLink>
+            {can('bills.pay') && (
+              <ButtonLink
+                to="/bills/pay"
+                variant="secondary"
+                icon={<HandCoins aria-hidden className="size-4" />}
+              >
+                {t('bills.pay')}
+              </ButtonLink>
+            )}
+            {can('purchases.edit') && (
+              <ButtonLink to="/bills/new" icon={<Plus aria-hidden className="size-4" />}>
+                {t('bills.new')}
+              </ButtonLink>
+            )}
           </>
         }
       />

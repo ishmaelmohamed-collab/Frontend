@@ -3,6 +3,7 @@ import { appAr, appEn } from './messages-app'
 import { b2Ar, b2En } from './messages-batch2'
 import { b3Ar, b3En } from './messages-batch3'
 import { b4Ar, b4En } from './messages-batch4'
+import { b5Ar, b5En } from './messages-batch5'
 
 export type Locale = 'en' | 'ar'
 
@@ -150,7 +151,7 @@ const en = {
 
 type BaseKey = keyof typeof en
 export type MessageKey =
-  BaseKey | keyof typeof appEn | keyof typeof b2En | keyof typeof b3En | keyof typeof b4En
+  BaseKey | keyof typeof appEn | keyof typeof b2En | keyof typeof b3En | keyof typeof b4En | keyof typeof b5En
 
 const ar: Record<BaseKey, string> = {
   'app.company': '[اسم شركتك]',
@@ -292,8 +293,28 @@ const ar: Record<BaseKey, string> = {
 }
 
 export const messages: Record<Locale, Record<MessageKey, string>> = {
-  en: { ...en, ...appEn, ...b2En, ...b3En, ...b4En },
-  ar: { ...ar, ...appAr, ...b2Ar, ...b3Ar, ...b4Ar },
+  en: { ...en, ...appEn, ...b2En, ...b3En, ...b4En, ...b5En },
+  ar: { ...ar, ...appAr, ...b2Ar, ...b3Ar, ...b4Ar, ...b5Ar },
+}
+
+/** Names from Settings that replace the [placeholders] in the text. Blank = keep the placeholder. */
+export interface Brand {
+  company: string
+  provider1: string
+  provider2: string
+}
+
+const PLACEHOLDERS: [keyof Brand, string[]][] = [
+  ['company', ['[Your company]', '[اسم شركتك]']],
+  ['provider1', ['[Provider 1]', '[المزوّد 1]']],
+  ['provider2', ['[Provider 2]', '[المزوّد 2]']],
+]
+
+export function applyBrand(text: string, brand: Brand) {
+  let out = text
+  for (const [k, tokens] of PLACEHOLDERS)
+    if (brand[k]) for (const tok of tokens) out = out.split(tok).join(brand[k])
+  return out
 }
 
 export interface LocaleContextValue {
@@ -301,6 +322,7 @@ export interface LocaleContextValue {
   dir: 'ltr' | 'rtl'
   setLocale: (locale: Locale) => void
   t: (key: MessageKey) => string
+  setBrand: (brand: Brand) => void
 }
 
 export const LocaleContext = createContext<LocaleContextValue | null>(null)

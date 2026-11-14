@@ -1,13 +1,16 @@
-import { Plus } from 'lucide-react'
+import { Download, Plus } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Amount } from '@/components/ui/Amount'
-import { ButtonLink } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { DataTable } from '@/components/ui/DataTable'
 import { FilterTabs, SearchInput } from '@/components/ui/Filters'
 import { Card, PageHeader } from '@/components/ui/Layout'
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States'
+import { downloadCsv } from '@/lib/csv'
+import { todayISO } from '@/lib/dates'
 import { useLocale } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import { sum } from '@/lib/money'
 import type { Invoice } from '@/types/domain'
 import { useInvoices } from './api'
@@ -26,6 +29,7 @@ const EMPTY: Invoice[] = []
 export function InvoicesPage() {
   const { t, locale } = useLocale()
   const navigate = useNavigate()
+  const { can } = useSession()
   const { data = EMPTY, isPending, isError, refetch } = useInvoices()
   const [filter, setFilter] = useState<Filter>('all')
   const [query, setQuery] = useState('')
@@ -56,9 +60,48 @@ export function InvoicesPage() {
           ) : undefined
         }
         actions={
-          <ButtonLink to="/invoices/new" icon={<Plus aria-hidden className="size-4" />}>
-            {t('btn.newInvoice')}
-          </ButtonLink>
+          <>
+            {/* Rule 3: Sales staff can't export lists. */}
+            {can('export') && (
+              <Button
+                variant="secondary"
+                icon={<Download aria-hidden className="size-4" />}
+                disabled={isPending || rows.length === 0}
+                onClick={() =>
+                  downloadCsv(
+                    `invoices-${todayISO()}.csv`,
+                    [
+                      t('table.no'),
+                      t('table.customer'),
+                      t('table.issued'),
+                      t('table.due'),
+                      t('table.total'),
+                      t('det.paid'),
+                      t('table.amount'),
+                      t('table.status'),
+                    ],
+                    rows.map((x) => [
+                      x.number,
+                      x.customerName,
+                      x.issueDate,
+                      x.dueDate,
+                      x.total,
+                      x.paid,
+                      x.due,
+                      t(`status.${x.status}`),
+                    ]),
+                  )
+                }
+              >
+                {t('rep.export')}
+              </Button>
+            )}
+            {can('sales.edit') && (
+              <ButtonLink to="/invoices/new" icon={<Plus aria-hidden className="size-4" />}>
+                {t('btn.newInvoice')}
+              </ButtonLink>
+            )}
+          </>
         }
       />
       <Card className="overflow-hidden">

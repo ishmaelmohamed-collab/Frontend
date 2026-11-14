@@ -3,7 +3,8 @@
  * Same rules the real backend must enforce: prices come from the item list, stock can't go
  * below zero, and stock only changes when an invoice is SENT (never for drafts).
  */
-import type { CreateInvoiceInput, CustomerSummary, Invoice, Item } from '@/types/domain'
+import { can } from '@/lib/permissions'
+import type { CreateInvoiceInput, CustomerSummary, Invoice, Item, Role } from '@/types/domain'
 import { assertOpen, customers, invoices, ITEMS, toCents, toMoney, ValidationError } from './db'
 
 const STOCK: Record<string, number> = { i1: 140, i2: 36, i3: 6, i4: 80, i5: 220, i6: 45, i7: 12, i8: 18 }
@@ -34,7 +35,7 @@ export function customerSummaries(): CustomerSummary[] {
   }))
 }
 
-export function createInvoice(input: CreateInvoiceInput): Invoice {
+export function createInvoice(input: CreateInvoiceInput, role: Role = 'owner'): Invoice {
   const customer = customers().find((c) => c.id === input.customerId)
   if (!customer) throw new ValidationError('customerRequired')
   if (!input.lines.length) throw new ValidationError('linesRequired')
@@ -54,6 +55,10 @@ export function createInvoice(input: CreateInvoiceInput): Invoice {
     }
   })
   if (input.send) {
+    // Rule 2: going over the customer's credit limit needs the Owner (others can save a draft).
+    const after = toCents(customer.balance) + lines.reduce((s, l) => s + toCents(l.amount), 0)
+    if (after > toCents(customer.creditLimit) && !can(role, 'sales.overLimit'))
+      throw new ValidationError('overCreditLimit')
     // Check every line against stock first, so nothing is half-applied.
     const need: Record<string, number> = {}
     lines.forEach((l) => (need[l.itemId] = (need[l.itemId] ?? 0) + l.quantity))

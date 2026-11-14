@@ -1,8 +1,11 @@
-import { FileText, Home, Languages, Menu, Plus, Users, X } from 'lucide-react'
+import { FileText, Home, Languages, LogOut, Menu, Plus, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
+import { IconButton } from '@/components/ui/Button'
+import { useSettings } from '@/features/admin/api'
 import { cn } from '@/lib/cn'
-import { useLocale } from '@/lib/i18n-context'
+import { useLocale, type MessageKey } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import { NAV } from './navigation'
 
 function Logo() {
@@ -15,16 +18,62 @@ function Logo() {
       >
         Logo
       </span>
-      <span className="font-bold">{t('app.company')}</span>
+      <bdi className="font-bold">{t('app.company')}</bdi>
     </Link>
   )
 }
 
+const initials = (name: string) =>
+  name
+    .split(/\s+/)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
+/** Signed-in person, their role, and Sign out (bottom of the sidebar and the phone menu). */
+function UserBox() {
+  const { t } = useLocale()
+  const { user, signOut } = useSession()
+  if (!user) return null
+  return (
+    <div className="border-line mt-auto flex items-center gap-3 border-t px-3 pt-4">
+      <span
+        aria-hidden
+        className="bg-slate grid size-9 shrink-0 place-items-center rounded-full text-xs font-bold text-white"
+      >
+        {initials(user.name)}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <bdi className="truncate text-sm font-semibold">{user.name}</bdi>
+        <span className="text-ink-muted text-xs">{t(`role.${user.role}` as MessageKey)}</span>
+      </span>
+      <IconButton label={t('auth.signOut')} onClick={signOut}>
+        <LogOut aria-hidden className="size-4 rtl:-scale-x-100" />
+      </IconButton>
+    </div>
+  )
+}
+
+/** Puts the company and provider names from Settings into every [placeholder]. */
+function BrandSync() {
+  const { setBrand } = useLocale()
+  const { data } = useSettings()
+  useEffect(() => {
+    if (data) setBrand({ company: data.companyName, provider1: data.provider1, provider2: data.provider2 })
+  }, [data, setBrand])
+  return null
+}
+
 function SideNav({ onNavigate }: { onNavigate?: () => void }) {
   const { t } = useLocale()
+  const { can } = useSession()
+  const groups = NAV.map((g) => ({ ...g, items: g.items.filter((i) => !i.perm || can(i.perm)) })).filter(
+    (g) => g.items.length > 0,
+  )
   return (
     <nav aria-label="Main" className="flex flex-col gap-5">
-      {NAV.map((g, i) => (
+      {groups.map((g, i) => (
         <div key={g.group ?? i}>
           {g.group && (
             <p className="text-ink-subtle mb-1 px-3 text-[11px] font-bold tracking-wider uppercase">
@@ -32,7 +81,7 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
             </p>
           )}
           <ul className="flex flex-col gap-0.5">
-            {g.items.map(({ to, key, icon: Icon, batch }) => (
+            {g.items.map(({ to, key, icon: Icon }) => (
               <li key={to}>
                 <NavLink
                   to={to}
@@ -49,7 +98,6 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
                 >
                   <Icon aria-hidden className="size-4 shrink-0" />
                   <span className="flex-1">{t(key)}</span>
-                  {batch && <span className="text-ink-subtle text-[11px]">{t('nav.soon')}</span>}
                 </NavLink>
               </li>
             ))}
@@ -66,6 +114,7 @@ function SideNav({ onNavigate }: { onNavigate?: () => void }) {
  */
 export function AppShell() {
   const { t, locale, setLocale } = useLocale()
+  const { user, can } = useSession()
   const [menuOpen, setMenuOpen] = useState(false)
   const { pathname } = useLocation()
 
@@ -91,12 +140,14 @@ export function AppShell() {
         {t('shell.skip')}
       </a>
 
-      <aside className="bg-panel border-line sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto border-e px-3 py-5 lg:flex">
+      <aside className="no-print bg-panel border-line sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto border-e px-3 py-5 lg:flex">
         <div className="px-3">
           <Logo />
         </div>
         <SideNav />
+        <UserBox />
       </aside>
+      <BrandSync />
 
       {menuOpen && (
         <div
@@ -124,12 +175,13 @@ export function AppShell() {
               </button>
             </div>
             <SideNav onNavigate={() => setMenuOpen(false)} />
+            <UserBox />
           </div>
         </div>
       )}
 
       <div className="min-w-0">
-        <header className="bg-panel/90 border-line sticky top-0 z-40 flex h-16 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
+        <header className="no-print bg-panel/90 border-line sticky top-0 z-40 flex h-16 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
           <div className="lg:hidden">
             <Logo />
           </div>
@@ -147,15 +199,19 @@ export function AppShell() {
               <Languages aria-hidden className="size-4" />
               {t('app.switch')}
             </button>
-            <span className="hidden items-center gap-2 ps-2 sm:flex">
-              <span
-                aria-hidden
-                className="bg-slate grid size-9 place-items-center rounded-full text-xs font-bold text-white"
-              >
-                OW
+            {user && (
+              <span className="hidden items-center gap-2 ps-2 sm:flex lg:hidden xl:flex">
+                <span
+                  aria-hidden
+                  className="bg-slate grid size-9 place-items-center rounded-full text-xs font-bold text-white"
+                >
+                  {initials(user.name)}
+                </span>
+                <span className="text-ink-muted text-sm">
+                  <bdi>{user.name}</bdi> · {t(`role.${user.role}` as MessageKey)}
+                </span>
               </span>
-              <span className="text-ink-muted text-sm">{t('shell.user')}</span>
-            </span>
+            )}
           </div>
         </header>
 
@@ -167,7 +223,7 @@ export function AppShell() {
       {/* Phone tab bar */}
       <nav
         aria-label={t('shell.menu')}
-        className="bg-panel border-line fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 items-center border-t px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
+        className="no-print bg-panel border-line fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 items-center border-t px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] lg:hidden"
       >
         {tabs.slice(0, 2).map(({ to, label, Icon, end }) => (
           <NavLink
@@ -185,16 +241,20 @@ export function AppShell() {
             {label}
           </NavLink>
         ))}
-        <Link
-          to="/invoices/new"
-          aria-label={t('btn.newInvoice')}
-          className={cn(
-            'bg-slate shadow-card mx-auto grid size-13 place-items-center rounded-full text-white',
-            pathname === '/invoices/new' && 'bg-slate-pressed',
-          )}
-        >
-          <Plus aria-hidden className="size-6" />
-        </Link>
+        {can('sales.edit') ? (
+          <Link
+            to="/invoices/new"
+            aria-label={t('btn.newInvoice')}
+            className={cn(
+              'bg-slate shadow-card mx-auto grid size-13 place-items-center rounded-full text-white',
+              pathname === '/invoices/new' && 'bg-slate-pressed',
+            )}
+          >
+            <Plus aria-hidden className="size-6" />
+          </Link>
+        ) : (
+          <span aria-hidden />
+        )}
         {tabs.slice(2).map(({ to, label, Icon }) => (
           <NavLink
             key={to}

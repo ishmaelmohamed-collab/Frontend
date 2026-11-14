@@ -1,16 +1,20 @@
 import { ArrowRight, Plus, TrendingDown, TrendingUp } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { Amount } from '@/components/ui/Amount'
 import { ButtonLink } from '@/components/ui/Button'
 import { DataTable } from '@/components/ui/DataTable'
+import { Alert } from '@/components/ui/Feedback'
 import { Card, CardHeader, PageHeader, StatCard } from '@/components/ui/Layout'
 import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States'
-import { formatLongDate, formatMonth } from '@/lib/dates'
+import { cn } from '@/lib/cn'
+import { formatLongDate, formatMonth, formatMonthYear } from '@/lib/dates'
 import { useLocale } from '@/lib/i18n-context'
 import { formatCurrency, money, sum } from '@/lib/money'
+import { useSession } from '@/lib/session-context'
 import type { DashboardSummary } from '@/types/domain'
+import { useMonthClose } from '../books/api'
 import { useDashboard } from '../invoices/api'
 import { invoiceColumns } from '../invoices/columns'
 
@@ -131,6 +135,10 @@ export function DashboardPage() {
   const { data: d, isPending, isError, refetch } = useDashboard()
   const columns = useMemo(() => invoiceColumns(t, locale), [t, locale])
   const [today] = useState(() => new Date())
+  const { can } = useSession()
+  const showMoney = can('money.view')
+  const charts = can('reports.view')
+  const { data: close } = useMonthClose(can('books.view'))
 
   return (
     <>
@@ -138,9 +146,11 @@ export function DashboardPage() {
         title={t('dash.goodMorning')}
         description={formatLongDate(today, locale)}
         actions={
-          <ButtonLink to="/invoices/new" icon={<Plus aria-hidden className="size-4" />}>
-            {t('btn.newInvoice')}
-          </ButtonLink>
+          can('sales.edit') ? (
+            <ButtonLink to="/invoices/new" icon={<Plus aria-hidden className="size-4" />}>
+              {t('btn.newInvoice')}
+            </ButtonLink>
+          ) : undefined
         }
       />
 
@@ -154,9 +164,25 @@ export function DashboardPage() {
         />
       )}
 
+      {close?.reminder && (
+        <div className="mb-6">
+          <Alert
+            tone="attention"
+            title={`${formatMonthYear(close.month, locale)} ${t('close.stillOpen')}`}
+            action={
+              <ButtonLink to="/close" size="sm" variant="secondary">
+                {t('close.goClose')}
+              </ButtonLink>
+            }
+          >
+            {t('close.reminderBody')}
+          </Alert>
+        </div>
+      )}
+
       {d && (
         <div className="flex flex-col gap-6">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className={cn('grid gap-4 sm:grid-cols-2', showMoney ? 'xl:grid-cols-4' : 'xl:grid-cols-3')}>
             <StatCard
               variant="featured"
               label={t('kpi.revenue')}
@@ -174,21 +200,25 @@ export function DashboardPage() {
               value={<Amount value={d.overdue} />}
               footnote={`${d.overdueCount} ${t('dash.pastDue')}`}
             />
-            <StatCard
-              label={t('kpi.bank')}
-              value={<Amount value={d.cash} />}
-              footnote={`${t('dash.across')} ${d.accounts.length} ${t('dash.accountsWord')}`}
-            />
+            {showMoney && (
+              <StatCard
+                label={t('kpi.bank')}
+                value={<Amount value={d.cash} />}
+                footnote={`${t('dash.across')} ${d.accounts.length} ${t('dash.accountsWord')}`}
+              />
+            )}
           </div>
 
           <div className="grid gap-6 xl:grid-cols-5">
-            <Card className="xl:col-span-3">
-              <CardHeader title={t('dash.chartTitle')} description={t('dash.chartSub')} />
-              <div className="p-5">
-                <IncomeChart d={d} />
-              </div>
-            </Card>
-            <Card className="xl:col-span-2">
+            {charts && (
+              <Card className="xl:col-span-3">
+                <CardHeader title={t('dash.chartTitle')} description={t('dash.chartSub')} />
+                <div className="p-5">
+                  <IncomeChart d={d} />
+                </div>
+              </Card>
+            )}
+            <Card className={charts ? 'xl:col-span-2' : 'xl:col-span-5'}>
               <CardHeader title={t('dash.agingTitle')} description={t('dash.agingSub')} />
               <div className="p-5">
                 <Aging d={d} />
@@ -197,7 +227,7 @@ export function DashboardPage() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-3">
-            <Card className="overflow-hidden xl:col-span-2">
+            <Card className={cn('overflow-hidden', showMoney ? 'xl:col-span-2' : 'xl:col-span-3')}>
               <CardHeader
                 title={t('table.title')}
                 action={
@@ -216,26 +246,30 @@ export function DashboardPage() {
                 />
               </div>
             </Card>
-            <Card>
-              <CardHeader title={t('dash.wallets')} />
-              <ul className="flex flex-col gap-3 p-5">
-                {d.accounts.map((a) => (
-                  <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
-                    <span>{t(`acct.${a.id}`)}</span>
-                    <Amount value={a.balance} className="font-semibold" />
+            {showMoney && (
+              <Card>
+                <CardHeader title={t('dash.wallets')} />
+                <ul className="flex flex-col gap-3 p-5">
+                  {d.accounts.map((a) => (
+                    <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
+                      <span>{t(`acct.${a.id}`)}</span>
+                      <Amount value={a.balance} className="font-semibold" />
+                    </li>
+                  ))}
+                  <li className="border-line mt-1 flex flex-col gap-1 border-t pt-3 text-sm">
+                    <span>
+                      <strong className="text-slate">
+                        {d.accounts.reduce((s, a) => s + a.unmatched, 0)}
+                      </strong>{' '}
+                      {t('dash.toMatch')}
+                    </span>
+                    <Link to="/reconcile" className="text-slate text-xs font-semibold underline">
+                      {t('nav.reconcile')}
+                    </Link>
                   </li>
-                ))}
-                <li className="border-line mt-1 flex flex-col gap-1 border-t pt-3 text-sm">
-                  <span>
-                    <strong className="text-slate">{d.accounts.reduce((s, a) => s + a.unmatched, 0)}</strong>{' '}
-                    {t('dash.toMatch')}
-                  </span>
-                  <span className="text-ink-subtle text-xs">
-                    {t('nav.reconcile')} · {t('nav.soon')}
-                  </span>
-                </li>
-              </ul>
-            </Card>
+                </ul>
+              </Card>
+            )}
           </div>
         </div>
       )}

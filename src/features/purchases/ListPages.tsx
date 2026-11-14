@@ -11,6 +11,7 @@ import { EmptyState, ErrorState, Skeleton } from '@/components/ui/States'
 import { columnHelper } from '@/components/ui/table-features'
 import { formatDate } from '@/lib/dates'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import { money, sum } from '@/lib/money'
 import type { PurchaseOrder, Quote, ReceivedPayment, Vendor } from '@/types/domain'
 import { useConvertQuote, useOrders, usePayments, useQuotes, useVendors } from './api'
@@ -147,6 +148,7 @@ export function VendorsPage() {
 const EO: PurchaseOrder[] = []
 export function OrdersPage() {
   const { t, locale } = useLocale()
+  const { can } = useSession()
   const navigate = useNavigate()
   const { data = EO, isPending, isError, refetch } = useOrders()
   const [query, setQuery] = useState('')
@@ -201,7 +203,7 @@ export function OrdersPage() {
         id: 'action',
         header: '',
         cell: (c) =>
-          c.row.original.status !== 'received' ? (
+          c.row.original.status !== 'received' && can('purchases.edit') ? (
             <Button
               size="sm"
               variant="secondary"
@@ -213,7 +215,7 @@ export function OrdersPage() {
           ) : null,
       }),
     ])
-  }, [t, locale, navigate])
+  }, [t, locale, navigate, can])
   const rows = data.filter((o) => has(query, o.id, o.vendorName))
   return (
     <ListFrame
@@ -239,6 +241,7 @@ export function OrdersPage() {
 const EQ: Quote[] = []
 export function QuotesPage() {
   const { t, locale } = useLocale()
+  const { can } = useSession()
   const { data = EQ, isPending, isError, refetch } = useQuotes()
   const convert = useConvertQuote()
   const [query, setQuery] = useState('')
@@ -282,7 +285,7 @@ export function QuotesPage() {
                 {t('q.openInvoice')}
               </Link>
             )
-          if (q.status !== 'sent' && q.status !== 'accepted') return null
+          if ((q.status !== 'sent' && q.status !== 'accepted') || !can('sales.edit')) return null
           return (
             <Button
               size="sm"
@@ -297,7 +300,7 @@ export function QuotesPage() {
         },
       }),
     ])
-  }, [t, locale, convert])
+  }, [t, locale, convert, can])
   const rows = data.filter((q) => has(query, q.id, q.customerName))
   return (
     <>
@@ -317,9 +320,11 @@ export function QuotesPage() {
       <ListFrame
         title={t('nav.quotes')}
         actions={
-          <ButtonLink to="/invoices/new" variant="secondary" icon={<Plus aria-hidden className="size-4" />}>
-            {t('btn.newInvoice')}
-          </ButtonLink>
+          can('sales.edit') ? (
+            <ButtonLink to="/invoices/new" variant="secondary" icon={<Plus aria-hidden className="size-4" />}>
+              {t('btn.newInvoice')}
+            </ButtonLink>
+          ) : undefined
         }
         query={query}
         onQuery={setQuery}

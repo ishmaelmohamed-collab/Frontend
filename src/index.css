@@ -126,3 +126,27 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Print (invoice PDF, reports): only the page content, no app chrome, no colour fills. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body,
+  .bg-canvas {
+    background: #fff !important;
+  }
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .shadow-card {
+    box-shadow: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}
+.print-only {
+  display: none;
+}

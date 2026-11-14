@@ -52,8 +52,10 @@ src/types/domain.ts  Data contract between screens and the API
    stock only changes when an invoice is **sent** (never drafts). Only the Owner locks/reopens a month, with a
    reason; nothing dated in a locked month can be added. Journal entries must balance; reconciliation never
    matches silently.
-6. **Accessibility:** visible labels, errors next to fields, 4.5:1 contrast, keyboard works, 44 px touch targets.
-7. Every data screen has loading, empty and error states.
+6. **Roles:** check `useSession().can(...)` before showing an action, add the route's permission in
+   `App.tsx` / `navigation.ts`, and guard the mock API route with the same permission.
+7. **Accessibility:** visible labels, errors next to fields, 4.5:1 contrast, keyboard works, 44 px touch targets.
+8. Every data screen has loading, empty and error states.
 
 ## Status (see brief for detail)
 
@@ -63,7 +65,12 @@ Phases 1–4 approved. Screens are built in batches:
 - ✅ 2 New invoice, Customers, Items & stock
 - ✅ 3 Bills (+ approval), New bill, Pay bills, Vendors, Purchase orders, Quotes, Payments received
 - ✅ 4 Bank & wallets (+ transfers), Reconciliation, Close month (+ lock/reopen), Accounts & journal (+ manual entries)
-- ⏳ 5 Reports, Settings, Sign-in & roles
+- ✅ 5 Sign-in & roles (permission table in `src/lib/permissions.ts`, enforced by the mock API too),
+  Settings (company, provider names, approval limit, reminder day, users), Reports (P&L, balance sheet,
+  who owes what, sales by customer; print + CSV export)
+
+Demo accounts: `owner|accountant|cashier|sales@demo.test`, password `demo1234` (see README).
+Next phase: 7 — Launch (connect the real backend, QA, handover).
 
 Placeholders still waiting on the client: company name, logo, mobile-money provider names.
 Demo data resets on page reload (in-memory mock).

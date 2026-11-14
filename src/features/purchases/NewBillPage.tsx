@@ -13,6 +13,7 @@ import { Card, CardHeader, PageHeader } from '@/components/ui/Layout'
 import { Skeleton } from '@/components/ui/States'
 import { cn } from '@/lib/cn'
 import { todayISO } from '@/lib/dates'
+import { useSettings } from '@/features/admin/api'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import { money, sum } from '@/lib/money'
 import type { Item, PurchaseOrder, Vendor } from '@/types/domain'
@@ -21,7 +22,6 @@ import { useCreateBill, useOrders, useVendors } from './api'
 
 const AMOUNT = /^\d+(\.\d{1,2})?$/
 const EXPENSE = 'expense'
-const LIMIT = money(10000)
 
 const schema = z
   .object({
@@ -71,6 +71,8 @@ const EI: Item[] = []
 
 export function NewBillPage() {
   const { t } = useLocale()
+  const { data: settings } = useSettings()
+  const limit = money(settings?.approvalLimit ?? '10000')
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const { data: vendors = EV, isPending: l1 } = useVendors()
@@ -344,7 +346,7 @@ export function NewBillPage() {
               <span>{t('table.total')}</span>
               <Amount value={total} />
             </div>
-            {total.gt(LIMIT) && (
+            {total.gt(limit) && (
               <div className="mt-3">
                 <Alert tone="attention" title={t('nb.approvalWarn')} />
               </div>

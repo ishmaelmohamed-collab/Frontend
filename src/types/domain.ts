@@ -321,6 +321,51 @@ export interface MonthClose {
   history: PeriodEvent[]
 }
 
+// ── Sign-in, users & settings (batch 5) ──────────────────
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: Role
+  active: boolean
+}
+
+export interface Session {
+  token: string
+  user: User
+}
+
+export interface Settings {
+  companyName: string
+  address: string
+  phone: string
+  email: string
+  provider1: string // mobile-money provider names (client still to confirm)
+  provider2: string
+  approvalLimit: Money // rule 1
+  reminderDay: number // rule 5
+}
+
+export type ReportKind = 'profit' | 'balance' | 'aging' | 'sales'
+
+export interface ReportLine {
+  /** Message key for the label (account names, section titles), or plain text for customer/item names. */
+  label: string
+  labelIsKey: boolean
+  amount: Money
+  /** For the aging report: one amount per bucket. */
+  buckets?: Money[]
+  kind: 'row' | 'subtotal' | 'total' | 'heading'
+  code?: string
+}
+
+export interface Report {
+  kind: ReportKind
+  from: ISODate | null
+  to: ISODate
+  lines: ReportLine[]
+}
+
 export interface CreateInvoiceInput {
   customerId: string
   issueDate: ISODate

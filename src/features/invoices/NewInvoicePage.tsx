@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/States'
 import { cn } from '@/lib/cn'
 import { todayISO } from '@/lib/dates'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import { money, sum } from '@/lib/money'
 import type { CustomerSummary, Item } from '@/types/domain'
 import { useCreateInvoice, useCustomers, useItems } from '../catalog/api'
@@ -45,6 +46,7 @@ const EMPTY_I: Item[] = []
 
 export function NewInvoicePage() {
   const { t } = useLocale()
+  const { can } = useSession()
   const navigate = useNavigate()
   const { data: customers = EMPTY_C, isPending: cLoading } = useCustomers()
   const { data: items = EMPTY_I, isPending: iLoading } = useItems()
@@ -89,12 +91,15 @@ export function NewInvoicePage() {
   const anyShort = [...requested.keys()].some((id) => shortOf(id) !== null)
 
   const available = customer ? money(customer.creditLimit).minus(customer.balance).minus(total) : null
+  // Rule 2: over the credit limit only the Owner may send; everyone else can save a draft.
+  const overLimit = !!available?.isNegative()
+  const blockedByLimit = overLimit && !can('sales.overLimit')
   const dueDate = issueDate ? addDays(issueDate, Number(terms)) : ''
 
   const save = (send: boolean) =>
     handleSubmit(async (v) => {
       // Not enough stock: the lines already say so in red — sending is blocked (drafts are fine).
-      if (send && anyShort) return
+      if (send && (anyShort || blockedByLimit)) return
       const inv = await create.mutateAsync({
         customerId: v.customerId,
         issueDate: v.issueDate,
@@ -317,7 +322,12 @@ export function NewInvoicePage() {
                       <Amount value={customer.overdue} />
                     </p>
                   )}
-                  {available!.isNegative() && <Alert tone="attention" title={t('snap.overLimit')} />}
+                  {overLimit && (
+                    <Alert
+                      tone="attention"
+                      title={blockedByLimit ? t('snap.overLimitBlocked') : t('snap.overLimitOwner')}
+                    />
+                  )}
                 </>
               )}
             </div>
@@ -343,7 +353,7 @@ export function NewInvoicePage() {
               <Button
                 icon={<Send aria-hidden className="size-4 rtl:-scale-x-100" />}
                 loading={create.isPending && create.variables?.send}
-                disabled={create.isPending}
+                disabled={create.isPending || blockedByLimit}
                 onClick={save(true)}
               >
                 {t('new.saveSend')}

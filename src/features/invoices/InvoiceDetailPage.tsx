@@ -9,6 +9,7 @@ import { ErrorState, Skeleton } from '@/components/ui/States'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { formatDate, formatTime } from '@/lib/dates'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
+import { useSession } from '@/lib/session-context'
 import type { Invoice } from '@/types/domain'
 import { useInvoice } from './api'
 import { RecordPaymentDrawer } from './RecordPaymentDrawer'
@@ -16,6 +17,7 @@ import { RecordPaymentDrawer } from './RecordPaymentDrawer'
 export function InvoiceDetailPage() {
   const { id = '' } = useParams()
   const { t, locale } = useLocale()
+  const { can } = useSession()
   const { data: inv, isPending, isError, refetch } = useInvoice(id)
   const [paying, setPaying] = useState(false)
   const [toast, setToast] = useState<Invoice | null>(null)
@@ -74,7 +76,7 @@ export function InvoiceDetailPage() {
               >
                 {t('det.pdf')}
               </Button>
-              {payable && (
+              {payable && can('payments.record') && (
                 <Button icon={<HandCoins aria-hidden className="size-4" />} onClick={() => setPaying(true)}>
                   {t('btn.openDrawer')}
                 </Button>

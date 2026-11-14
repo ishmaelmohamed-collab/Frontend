@@ -12,6 +12,7 @@ import { formatDate, formatMonthYear, formatTime } from '@/lib/dates'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import { money } from '@/lib/money'
 import type { CloseCheck, MonthClose } from '@/types/domain'
+import { useSession } from '@/lib/session-context'
 import { errorCode, useCloseAction, useMonthClose } from './api'
 
 const monthEnd = (month: string) => {
@@ -24,6 +25,7 @@ export function CloseMonthPage() {
   const { t, locale } = useLocale()
   const { data: c, isPending, isError, refetch } = useMonthClose()
   const act = useCloseAction()
+  const owner = useSession().can('close.lock')
   const [dialog, setDialog] = useState<'lock' | 'reopen' | null>(null)
 
   const monthName = c ? formatMonthYear(c.month, locale) : ''
@@ -96,14 +98,16 @@ export function CloseMonthPage() {
                     {t('close.lockedNote')}{' '}
                     <span className="text-ink font-semibold">{formatDate(c.lockedThrough!, locale)}</span>
                   </p>
-                  <Button
-                    variant="secondary"
-                    className="mt-4"
-                    icon={<LockOpen aria-hidden className="size-4" />}
-                    onClick={() => setDialog('reopen')}
-                  >
-                    {t('close.reopen')}
-                  </Button>
+                  {owner && (
+                    <Button
+                      variant="secondary"
+                      className="mt-4"
+                      icon={<LockOpen aria-hidden className="size-4" />}
+                      onClick={() => setDialog('reopen')}
+                    >
+                      {t('close.reopen')}
+                    </Button>
+                  )}
                 </Card>
               ) : (
                 <Card className="border-slate border-2 p-5">
@@ -114,11 +118,15 @@ export function CloseMonthPage() {
                   </p>
                   <Button
                     className="mt-4 w-full"
-                    disabled={!allDone}
+                    disabled={!allDone || !owner}
                     icon={<AlertTriangle aria-hidden className="size-4" />}
                     onClick={() => setDialog('lock')}
                   >
-                    {allDone ? `${t('close.lockBtn')} ${monthName}…` : t('close.finishFirst')}
+                    {!owner
+                      ? t('err.ownerOnly')
+                      : allDone
+                        ? `${t('close.lockBtn')} ${monthName}…`
+                        : t('close.finishFirst')}
                   </Button>
                 </Card>
               )}

@@ -18,9 +18,29 @@ import type {
   Vendor,
 } from '@/types/domain'
 import { addStock, createInvoice, items } from './catalog'
-import { accounts, assertOpen, cashMoves, customers, invoices, toCents, toMoney, ValidationError } from './db'
+import {
+  accounts,
+  assertOpen,
+  cashMoves,
+  customers,
+  invoices,
+  settings,
+  toCents,
+  toMoney,
+  ValidationError,
+} from './db'
 
-export const APPROVAL_LIMIT_CENTS = 10_000_00
+/** Rule 1 — the limit is changeable in Settings (Owner only). */
+const approvalLimit = () => toCents(settings.approvalLimit)
+
+/** After the limit changes, re-check every bill that is not paid or already approved. */
+export function applyApprovalLimit() {
+  for (const b of bills) {
+    if (b.approved || b.status === 'paid') continue
+    b.needsApproval = toCents(b.total) > approvalLimit()
+    b.status = statusOf(b)
+  }
+}
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate())
@@ -112,7 +132,7 @@ function bill(
     total: toMoney(total),
     paid: toMoney(paidCents),
     due: toMoney(total - paidCents),
-    needsApproval: total > APPROVAL_LIMIT_CENTS,
+    needsApproval: total > approvalLimit(),
     approved: false,
     status: 'unpaid',
   }

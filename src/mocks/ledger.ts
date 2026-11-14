@@ -20,7 +20,17 @@ import type {
   Role,
 } from '@/types/domain'
 import { openingCents, statements } from './banking'
-import { accounts, assertOpen, cashMoves, invoices, period, toCents, toMoney, ValidationError } from './db'
+import {
+  accounts,
+  assertOpen,
+  cashMoves,
+  invoices,
+  period,
+  settings,
+  toCents,
+  toMoney,
+  ValidationError,
+} from './db'
 import { bills } from './purchases'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -290,7 +300,7 @@ export function monthClose(): MonthClose {
     credits: toMoney(credits),
     lockedThrough: period.lockedThrough,
     locked,
-    reminder: !locked && now.getDate() >= 3,
+    reminder: !locked && now.getDate() >= settings.reminderDay,
     history: [...close.history].reverse(),
   }
 }

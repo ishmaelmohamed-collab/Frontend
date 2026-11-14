@@ -14,6 +14,8 @@ import type {
   Payment,
   PaymentMethod,
   RecordPaymentInput,
+  Role,
+  Settings,
 } from '@/types/domain'
 
 // ── helpers ─────────────────────────────────────────────
@@ -258,6 +260,19 @@ export interface CashMove {
 }
 export const cashMoves: CashMove[] = []
 
+// ── company settings (batch 5) ─────────────────────────
+/** Blank names = still waiting on the client; the app then shows the [placeholders]. */
+export const settings: Settings = {
+  companyName: '',
+  address: '',
+  phone: '',
+  email: '',
+  provider1: '',
+  provider2: '',
+  approvalLimit: '10000.00',
+  reminderDay: 3,
+}
+
 // ── period lock (business rule 4) ──────────────────────
 export const period: { lockedThrough: string | null } = { lockedThrough: null }
 
@@ -267,7 +282,7 @@ export function assertOpen(date: string) {
 }
 
 /** Server-side rules for recording a payment (the UI checks the same, but the API is the authority). */
-export function recordPayment(invoiceId: string, input: RecordPaymentInput): Invoice {
+export function recordPayment(invoiceId: string, input: RecordPaymentInput, by: Role = 'cashier'): Invoice {
   const inv = invoices.find((x) => x.id === invoiceId)
   if (!inv) throw new ValidationError('notFound')
   if (inv.status === 'draft' || inv.status === 'void' || inv.status === 'paid')
@@ -287,7 +302,7 @@ export function recordPayment(invoiceId: string, input: RecordPaymentInput): Inv
     accountId: input.method === 'credit' ? null : input.accountId,
     reference: input.reference.trim(),
     amount: toMoney(applied),
-    recordedBy: 'cashier',
+    recordedBy: by,
     matched: false,
   }
   inv.payments = [payment, ...inv.payments]
@@ -295,7 +310,7 @@ export function recordPayment(invoiceId: string, input: RecordPaymentInput): Inv
   inv.due = toMoney(toCents(inv.total) - toCents(inv.paid))
   inv.status = statusOf(inv)
   inv.activity = [
-    { at: new Date().toISOString(), kind: 'payment', by: 'cashier', amount: payment.amount },
+    { at: new Date().toISOString(), kind: 'payment', by, amount: payment.amount },
     ...inv.activity,
   ]
   const acct = accounts.find((a) => a.id === payment.accountId)

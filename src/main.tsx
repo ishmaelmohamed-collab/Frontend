@@ -4,6 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router'
 import { App } from './app/App'
 import { LocaleProvider } from './lib/LocaleProvider'
+import { SessionProvider } from './lib/SessionProvider'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -22,9 +23,11 @@ startMocks().then(() => {
     <StrictMode>
       <LocaleProvider>
         <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
+          <SessionProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </SessionProvider>
         </QueryClientProvider>
       </LocaleProvider>
     </StrictMode>,

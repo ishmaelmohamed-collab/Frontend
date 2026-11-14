@@ -1,6 +1,6 @@
 # Project Brief — Accounting System Frontend
 
-**Restarted:** 14 Nov 2026 (clean start: all earlier design and code removed) · **Phase:** 5 — Screens (batch 4 built)
+**Restarted:** 14 Nov 2026 (clean start: all earlier design and code removed) · **Phase:** 5–6 — Screens (all 5 batches built; next: 7 — Launch)
 
 Only the client's own answers were carried over. Everything else in this project is new.
 
@@ -59,7 +59,7 @@ Readability rules (checked):
 | 2. Look & feel   | Blue fog design direction page, English + Arabic                                                | ✅ Approved 14 Nov 2026  |
 | 3. Wireframes    | Key flows: invoice → payment, bill → payment, reconcile, month-end — clickable at `/wireframes` | ✅ Approved 14 Nov 2026  |
 | 4. Design system | All components, every state, LTR + RTL — live gallery at `/design-system`                       | ✅ Approved 14 Nov 2026  |
-| 5–6. Screens     | Every V1 screen built working on demo data, desktop + phone, EN + AR — in 5 batches (below)     | ⏳ Batches 1–4 built     |
+| 5–6. Screens     | Every V1 screen built working on demo data, desktop + phone, EN + AR — in 5 batches (below)     | ✅ All 5 batches built   |
 | 7. Launch        | Connect real backend, QA, docs, handover                                                        | Final                    |
 
 ### Screen batches
@@ -70,6 +70,29 @@ Readability rules (checked):
 | 2     | New invoice · Customers · Items & stock                                    | ✅ Built & tested — awaiting review                   |
 | 3     | Bills · Pay bills · Vendors · Purchase orders · Quotes · Payments received | ✅ Built & tested — awaiting review                   |
 | 4     | Bank & wallets · Reconciliation · Close month · Accounts & journal         | ✅ Built & tested — awaiting review                   |
+| 5     | Sign-in & roles · Settings · Reports                                       | ✅ Built & tested — awaiting review                   |
+
+### Roles (batch 5)
+
+| Can…                                       | Owner | Accountant | Cashier  | Sales |
+| ------------------------------------------ | :---: | :--------: | :------: | :---: |
+| Create invoices and quotes                 |   ✓   |     ✓      |    —     |   ✓   |
+| Record customer payments                   |   ✓   |     ✓      |    ✓     |   —   |
+| Enter bills · pay bills                    |   ✓   |     ✓      | pay only |   —   |
+| Approve bills over the limit (rule 1)      |   ✓   |     —      |    —     |   —   |
+| Go over a customer’s credit limit (rule 2) |   ✓   |     —      |    —     |   —   |
+| Move money and reconcile                   |   ✓   |     ✓      |    ✓     |   —   |
+| Journal entries, month-end checks, reports |   ✓   |     ✓      |    —     |   —   |
+| Lock / reopen a month (rule 4)             |   ✓   |     —      |    —     |   —   |
+| Export to CSV (rule 3)                     |   ✓   |     ✓      |    ✓     |   —   |
+| Change settings and users                  |   ✓   | view only  |    —     |   —   |
+
+- The same table lives in `src/lib/permissions.ts`; screens hide what a role can't use and the API refuses it.
+- There is always at least one active Owner. Switched-off users are signed out on their next action.
+- **Settings:** company name and mobile-money provider names replace the `[placeholders]` everywhere (both
+  languages); approval limit (rule 1) and reminder day (rule 5) are editable by the Owner.
+- **Reports:** Profit & loss, Balance sheet (checks assets = liabilities + equity), Who owes what (aging by
+  customer), Sales by customer — all from the same journal; print and CSV export.
 
 ### How the books work (batch 4)
 

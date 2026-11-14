@@ -26,7 +26,8 @@ export const useReconciliation = (account: AccountId) =>
   useQuery({ queryKey: ['reconcile', account], queryFn: get<ReconciliationView>(`/reconcile/${account}`) })
 export const useLedger = () => useQuery({ queryKey: ['ledger'], queryFn: get<LedgerAccount[]>('/ledger') })
 export const useJournal = () => useQuery({ queryKey: ['journal'], queryFn: get<JournalEntry[]>('/journal') })
-export const useMonthClose = () => useQuery({ queryKey: ['close'], queryFn: get<MonthClose>('/close') })
+export const useMonthClose = (enabled = true) =>
+  useQuery({ queryKey: ['close'], queryFn: get<MonthClose>('/close'), enabled })
 
 /** The server's error code ("periodLocked", "unbalanced"…), or null for network/unknown errors. */
 export const errorCode = (e: unknown): string | null =>

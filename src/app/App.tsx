@@ -2,8 +2,16 @@ import { lazy, Suspense, type ReactNode } from 'react'
 import { Route, Routes } from 'react-router'
 import { Skeleton } from '@/components/ui/States'
 import { AppShell } from './AppShell'
-import { ComingSoon, NotFound } from './ComingSoon'
-import { PLANNED } from './navigation'
+import type { Permission } from '@/lib/permissions'
+import { Guard, NotFound, RequireUser } from './ComingSoon'
+
+const SignInPage = lazy(() => import('@/features/admin/SignInPage').then((m) => ({ default: m.SignInPage })))
+const ReportsPage = lazy(() =>
+  import('@/features/admin/ReportsPage').then((m) => ({ default: m.ReportsPage })),
+)
+const SettingsPage = lazy(() =>
+  import('@/features/admin/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+)
 
 // Each screen downloads only when first opened (charts are heavy).
 const DashboardPage = lazy(() =>
@@ -57,32 +65,42 @@ const Wireframes = lazy(() =>
   import('@/features/wireframes/WireframeRoutes').then((m) => ({ default: m.WireframeRoutes })),
 )
 
-const page = (el: ReactNode) => <Suspense fallback={<Skeleton rows={6} label="Loading…" />}>{el}</Suspense>
+const page = (el: ReactNode, perm?: Permission) => (
+  <Guard perm={perm}>
+    <Suspense fallback={<Skeleton rows={6} label="Loading…" />}>{el}</Suspense>
+  </Guard>
+)
 
 export function App() {
   return (
     <Routes>
-      <Route element={<AppShell />}>
+      <Route path="sign-in" element={page(<SignInPage />)} />
+      <Route
+        element={
+          <RequireUser>
+            <AppShell />
+          </RequireUser>
+        }
+      >
         <Route index element={page(<DashboardPage />)} />
-        <Route path="invoices" element={page(<InvoicesPage />)} />
-        <Route path="invoices/new" element={page(<NewInvoicePage />)} />
-        <Route path="invoices/:id" element={page(<InvoiceDetailPage />)} />
-        <Route path="customers" element={page(<CustomersPage />)} />
-        <Route path="items" element={page(<ItemsPage />)} />
-        <Route path="bills" element={page(<BillsPage />)} />
-        <Route path="bills/new" element={page(<NewBillPage />)} />
-        <Route path="bills/pay" element={page(<PayBillsPage />)} />
-        <Route path="vendors" element={page(<VendorsPage />)} />
-        <Route path="orders" element={page(<OrdersPage />)} />
-        <Route path="quotes" element={page(<QuotesPage />)} />
-        <Route path="payments" element={page(<PaymentsPage />)} />
-        <Route path="banking" element={page(<BankingPage />)} />
-        <Route path="reconcile" element={page(<ReconcilePage />)} />
-        <Route path="close" element={page(<CloseMonthPage />)} />
-        <Route path="accounts" element={page(<AccountsPage />)} />
-        {PLANNED.map((p) => (
-          <Route key={p.to} path={p.to.slice(1)} element={<ComingSoon titleKey={p.key} batch={p.batch!} />} />
-        ))}
+        <Route path="invoices" element={page(<InvoicesPage />, 'sales.view')} />
+        <Route path="invoices/new" element={page(<NewInvoicePage />, 'sales.edit')} />
+        <Route path="invoices/:id" element={page(<InvoiceDetailPage />, 'sales.view')} />
+        <Route path="customers" element={page(<CustomersPage />, 'sales.view')} />
+        <Route path="items" element={page(<ItemsPage />, 'items.view')} />
+        <Route path="bills" element={page(<BillsPage />, 'purchases.view')} />
+        <Route path="bills/new" element={page(<NewBillPage />, 'purchases.edit')} />
+        <Route path="bills/pay" element={page(<PayBillsPage />, 'bills.pay')} />
+        <Route path="vendors" element={page(<VendorsPage />, 'purchases.view')} />
+        <Route path="orders" element={page(<OrdersPage />, 'purchases.view')} />
+        <Route path="quotes" element={page(<QuotesPage />, 'sales.view')} />
+        <Route path="payments" element={page(<PaymentsPage />, 'money.view')} />
+        <Route path="banking" element={page(<BankingPage />, 'money.view')} />
+        <Route path="reconcile" element={page(<ReconcilePage />, 'money.view')} />
+        <Route path="close" element={page(<CloseMonthPage />, 'books.view')} />
+        <Route path="accounts" element={page(<AccountsPage />, 'books.view')} />
+        <Route path="reports" element={page(<ReportsPage />, 'reports.view')} />
+        <Route path="settings" element={page(<SettingsPage />, 'settings.view')} />
         <Route path="*" element={<NotFound />} />
       </Route>
       <Route path="direction" element={page(<DirectionPage />)} />
