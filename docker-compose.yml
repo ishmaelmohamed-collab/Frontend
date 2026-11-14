@@ -1,0 +1,32 @@
+# One-command full stack: PostgreSQL + backend API.
+#   docker compose up --build
+# Backend is then at http://localhost:8000/api
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: accounting_app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+      POSTGRES_DB: accounting
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U accounting_app -d accounting"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 8000
+      SESSION_SECRET: ${SESSION_SECRET:-change-me}
+      DATABASE_URL: postgres://accounting_app:${DB_PASSWORD:-change-me}@db:5432/accounting
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

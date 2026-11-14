@@ -6,14 +6,16 @@ import { Alert } from '@/components/ui/Feedback'
 import { TextField } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Layout'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
-import { ROLES } from '@/lib/permissions'
 import { useSession } from '@/lib/session-context'
 import { errorCode } from '../books/api'
 import { useSignIn } from './api'
 
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-/** Demo accounts (test values, also listed in README.md). Removed when the real backend arrives. */
 const DEMO_PASSWORD = 'demo1234'
+const DEMO_ACCOUNTS = [
+  { username: 'admin', password: 'admin12345', role: 'owner' as const },
+  { username: 'accountant', password: 'acc12345', role: 'accountant' as const },
+  { username: 'viewer', password: 'view12345', role: 'cashier' as const },
+]
 
 export function SignInPage() {
   const { t, locale, setLocale } = useLocale()
@@ -21,7 +23,7 @@ export function SignInPage() {
   const navigate = useNavigate()
   const next = (useLocation().state as { from?: string } | null)?.from ?? '/'
   const mutation = useSignIn()
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [show, setShow] = useState(false)
   const [errors, setErrors] = useState<{ email?: MessageKey; password?: MessageKey }>({})
@@ -31,13 +33,12 @@ export function SignInPage() {
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const errs: typeof errors = {}
-    if (!email.trim()) errs.email = 'err.emailRequired'
-    else if (!EMAIL.test(email.trim())) errs.email = 'err.emailFormat'
+    if (!username.trim()) errs.email = 'err.emailRequired'
     if (!password) errs.password = 'err.passwordRequired'
     setErrors(errs)
     if (Object.keys(errs).length) return
     try {
-      signIn(await mutation.mutateAsync({ email: email.trim(), password }))
+      signIn(await mutation.mutateAsync({ username: username.trim(), password }))
       navigate(next, { replace: true })
     } catch {
       /* shown below */
@@ -83,12 +84,12 @@ export function SignInPage() {
               {mutation.isError && !code && <Alert tone="error" title={t('err.signInServer')} />}
               <TextField
                 label={t('auth.email')}
-                type="email"
+                type="text"
                 autoComplete="username"
                 dir="ltr"
-                value={email}
+                value={username}
                 onChange={(e) => {
-                  setEmail(e.target.value)
+                  setUsername(e.target.value)
                   setErrors((x) => ({ ...x, email: undefined }))
                 }}
                 error={errors.email && t(errors.email)}
@@ -137,20 +138,20 @@ export function SignInPage() {
               </bdi>
             </p>
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {ROLES.map((role) => (
-                <li key={role}>
+              {DEMO_ACCOUNTS.map((a) => (
+                <li key={a.username}>
                   <button
                     type="button"
                     onClick={() => {
-                      setEmail(`${role}@demo.test`)
-                      setPassword(DEMO_PASSWORD)
+                      setUsername(a.username)
+                      setPassword(a.password)
                       setErrors({})
                     }}
                     className="border-line-input hover:bg-mist-soft rounded-control flex min-h-11 w-full flex-col items-start px-3 py-2 text-start"
                   >
-                    <span className="text-sm font-semibold">{t(`role.${role}` as MessageKey)}</span>
+                    <span className="text-sm font-semibold">{t(`role.${a.role}` as MessageKey)}</span>
                     <bdi dir="ltr" className="text-ink-muted text-xs">
-                      {role}@demo.test
+                      {a.username}
                     </bdi>
                   </button>
                 </li>

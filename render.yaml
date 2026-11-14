@@ -1,0 +1,32 @@
+# Render.com blueprint — free tier: PostgreSQL + backend API + frontend static site.
+# Push this repo to GitHub, then in Render: "New > Blueprint" and pick this file.
+services:
+  - type: web
+    name: accounting-backend
+    runtime: docker
+    rootDir: backend
+    plan: free
+    envVars:
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: accounting-db
+          property: connectionString
+
+  - type: web
+    name: accounting-frontend
+    runtime: static
+    plan: free
+    rootDir: .
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        # After the backend deploys, replace this with its real URL, e.g.
+        # https://accounting-backend.onrender.com/api
+        value: https://accounting-backend.onrender.com/api
+
+databases:
+  - name: accounting-db
+    plan: free
