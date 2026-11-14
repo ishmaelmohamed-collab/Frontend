@@ -2,6 +2,7 @@ import {
   BarChart3,
   BookOpenText,
   Boxes,
+  CalendarCheck,
   FileText,
   FileSignature,
   HandCoins,
@@ -50,14 +51,15 @@ export const NAV: { group?: MessageKey; items: NavItem[] }[] = [
   {
     group: 'group.money',
     items: [
-      { to: '/banking', key: 'nav.banking', icon: Landmark, batch: 4 },
-      { to: '/reconcile', key: 'nav.reconcile', icon: ListChecks, batch: 4 },
+      { to: '/banking', key: 'nav.banking', icon: Landmark },
+      { to: '/reconcile', key: 'nav.reconcile', icon: ListChecks },
     ],
   },
   {
     group: 'group.accounting',
     items: [
-      { to: '/accounts', key: 'nav.accounts', icon: BookOpenText, batch: 4 },
+      { to: '/accounts', key: 'nav.accounts', icon: BookOpenText },
+      { to: '/close', key: 'nav.close', icon: CalendarCheck },
       { to: '/reports', key: 'nav.reports', icon: BarChart3, batch: 5 },
     ],
   },

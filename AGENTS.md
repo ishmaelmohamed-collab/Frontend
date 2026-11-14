@@ -30,8 +30,9 @@ React Hook Form + Zod · decimal.js · Recharts · Lucide · MSW · Vitest + Tes
 ```
 src/app/             AppShell (sidebar, top bar, phone tab bar), routes (App.tsx), navigation.ts
 src/components/ui/   Reusable components — build screens ONLY from these
-src/features/        One folder per area: dashboard, invoices, catalog (customers, items), purchases
-src/mocks/           Demo data + fake API (db.ts, catalog.ts, purchases.ts, handlers.ts) — enforces business rules
+src/features/        One folder per area: dashboard, invoices, catalog (customers, items), purchases, books
+src/mocks/           Demo data + fake API (db.ts, catalog.ts, purchases.ts, banking.ts, ledger.ts, handlers.ts)
+                     — enforces business rules; ledger.ts builds the journal from the documents
 src/lib/             money (decimal.js), dates, i18n (i18n-context.ts + messages-*.ts), api client
 src/types/domain.ts  Data contract between screens and the API
 ```
@@ -48,7 +49,9 @@ src/types/domain.ts  Data contract between screens and the API
 4. **Payments:** methods are bank transfer, mobile money, customer credit — **no cash**. Bank and mobile money
    require a transaction ID.
 5. **Approvals:** bills over $10,000 need Owner approval before payment; accounts can't be overdrawn;
-   stock only changes when an invoice is **sent** (never drafts).
+   stock only changes when an invoice is **sent** (never drafts). Only the Owner locks/reopens a month, with a
+   reason; nothing dated in a locked month can be added. Journal entries must balance; reconciliation never
+   matches silently.
 6. **Accessibility:** visible labels, errors next to fields, 4.5:1 contrast, keyboard works, 44 px touch targets.
 7. Every data screen has loading, empty and error states.
 
@@ -59,7 +62,7 @@ Phases 1–4 approved. Screens are built in batches:
 - ✅ 1 App shell, Dashboard, Invoices list, Invoice detail + Record payment
 - ✅ 2 New invoice, Customers, Items & stock
 - ✅ 3 Bills (+ approval), New bill, Pay bills, Vendors, Purchase orders, Quotes, Payments received
-- ⏳ 4 Bank & wallets, Reconciliation, Close month, Accounts & journal
+- ✅ 4 Bank & wallets (+ transfers), Reconciliation, Close month (+ lock/reopen), Accounts & journal (+ manual entries)
 - ⏳ 5 Reports, Settings, Sign-in & roles
 
 Placeholders still waiting on the client: company name, logo, mobile-money provider names.

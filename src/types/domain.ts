@@ -188,6 +188,139 @@ export interface PayBillsInput {
   date: ISODate
 }
 
+// ── Money & books (batch 4) ──────────────────────────────
+export type AccountId = MoneyAccount['id']
+
+export type BankTxnKind = 'receipt' | 'billPayment' | 'transferIn' | 'transferOut' | 'fee' | 'unapplied'
+
+/** One movement in a bank or wallet account, as the books see it. Amount is signed: + in, − out. */
+export interface BankTxn {
+  id: string
+  accountId: AccountId
+  date: ISODate
+  kind: BankTxnKind
+  party: string // customer, vendor or other account
+  reference: string
+  amount: Money
+  matched: boolean
+  link: { kind: 'invoice' | 'bill'; id: string } | null
+  balanceAfter: Money
+}
+
+/**
+ * A line from the imported bank / wallet statement.
+ * suggested = the books have a likely match · missing = an open invoice was paid but never recorded ·
+ * fee = only on the statement · unknown = money in, payer not known · matched = done.
+ */
+export type StatementState = 'matched' | 'suggested' | 'missing' | 'fee' | 'unknown'
+
+export interface StatementLine {
+  id: string
+  accountId: AccountId
+  date: ISODate
+  text: string // as printed on the statement
+  reference: string
+  amount: Money
+  state: StatementState
+  why: 'exact' | 'amountCustomer' | null
+  bookTxnId: string | null
+  invoiceId: string | null
+  /** How it was resolved, once matched. */
+  resolution: 'matched' | 'recorded' | 'fee' | 'held' | null
+}
+
+export interface Reconciliation {
+  accountId: AccountId
+  statementDate: ISODate
+  statementBalance: Money
+  bookBalance: Money
+  difference: Money
+  lines: StatementLine[]
+  /** Matched earlier, from previous statements. */
+  matchedBefore: number
+}
+
+export type ResolveAction = 'match' | 'record' | 'fee' | 'hold'
+
+export interface TransferInput {
+  fromId: AccountId
+  toId: AccountId
+  amount: Money
+  date: ISODate
+  reference: string
+}
+
+export type LedgerType = 'asset' | 'liability' | 'equity' | 'income' | 'expense'
+
+export interface LedgerAccount {
+  code: string
+  type: LedgerType
+  /** Bank, wallet, receivable and payable accounts only move through their own screens. */
+  system: boolean
+  /** Natural-sign balance (assets/expenses: debit − credit; others: credit − debit). */
+  balance: Money
+  debit: Money
+  credit: Money
+}
+
+export type JournalSource =
+  'opening' | 'invoice' | 'payment' | 'bill' | 'billPayment' | 'transfer' | 'fee' | 'unapplied' | 'manual'
+
+export interface JournalLine {
+  accountCode: string
+  debit: Money
+  credit: Money
+}
+
+export interface JournalEntry {
+  id: string
+  date: ISODate
+  source: JournalSource
+  reference: string // document number, e.g. INV-3101
+  party: string
+  memo: string // free text, manual entries only
+  lines: JournalLine[]
+  total: Money
+  by: Role
+}
+
+export interface JournalInput {
+  date: ISODate
+  memo: string
+  lines: { accountCode: string; debit: Money; credit: Money }[]
+}
+
+export type CloseCheckId =
+  'reconcile-bank-main' | 'reconcile-mobile-1' | 'reconcile-mobile-2' | 'drafts' | 'approvals' | 'stockCount'
+
+export interface CloseCheck {
+  id: CloseCheckId
+  done: boolean
+  count: number
+}
+
+export interface PeriodEvent {
+  at: string // ISO date-time
+  action: 'lock' | 'reopen'
+  month: string // yyyy-MM
+  by: Role
+  reason: string
+}
+
+export interface MonthClose {
+  month: string // yyyy-MM — the month being closed (last month)
+  checks: CloseCheck[]
+  income: Money
+  expenses: Money
+  debits: Money
+  credits: Money
+  lockedThrough: ISODate | null
+  locked: boolean
+  /** True from the 3rd of the month while last month is still open (business rule 5). */
+  reminder: boolean
+  history: PeriodEvent[]
+}
+
 export interface CreateInvoiceInput {
   customerId: string
   issueDate: ISODate

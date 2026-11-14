@@ -102,7 +102,10 @@ export function DataTable<T extends RowData>({ caption, columns, data, onOpen, e
 
       <ul className="divide-line divide-y md:hidden" aria-label={caption}>
         {rows.map((row) => {
-          const cells = row.getAllCells().filter((c) => !c.column.columnDef.meta?.hideOnPhone)
+          const cells = row.getAllCells().filter((c) => {
+            const meta = c.column.columnDef.meta
+            return !meta?.hideOnPhone && !meta?.hideOnPhoneWhen?.(row.original)
+          })
           const [first, ...rest] = cells
           const body = (
             <>

@@ -33,6 +33,9 @@ export function useRecordPayment(id: string) {
       qc.setQueryData(keys.invoice(id), inv)
       void qc.invalidateQueries({ queryKey: keys.invoices })
       void qc.invalidateQueries({ queryKey: keys.dashboard })
+      // Money moved: bank, reconciliation and the books change too.
+      for (const k of ['accounts', 'payments', 'transactions', 'reconcile', 'ledger', 'journal', 'close'])
+        void qc.invalidateQueries({ queryKey: [k] })
     },
   })
 }

@@ -18,7 +18,7 @@ import type {
   Vendor,
 } from '@/types/domain'
 import { addStock, createInvoice, items } from './catalog'
-import { accounts, customers, invoices, toCents, toMoney, ValidationError } from './db'
+import { accounts, assertOpen, cashMoves, customers, invoices, toCents, toMoney, ValidationError } from './db'
 
 export const APPROVAL_LIMIT_CENTS = 10_000_00
 
@@ -144,6 +144,21 @@ export const bills: Bill[] = [
   bill('BILL-0223', 'v3', 'CE-10/26', -38, -24, [exp('Electricity — previous month', 40125)], 40125),
 ]
 
+// Earlier bill payments, already on past statements (paid from the bank, a few days after the bill).
+for (const b of bills)
+  if (toCents(b.paid) > 0)
+    cashMoves.push({
+      id: `bp-${b.id}`,
+      accountId: 'bank-main',
+      date: b.billDate < day(-30) ? day(-28) : day(-12),
+      kind: 'billPayment',
+      party: b.vendorName,
+      reference: b.id,
+      cents: -toCents(b.paid),
+      link: { kind: 'bill', id: b.id },
+      matched: true,
+    })
+
 export function vendors(): Vendor[] {
   return VENDORS.map(([id, name, phone]) => {
     const own = bills.filter((b) => b.vendorId === id && b.status !== 'paid')
@@ -170,6 +185,7 @@ export function createBill(input: CreateBillInput): Bill {
   if (!VENDORS.some((v) => v[0] === input.vendorId)) throw new ValidationError('vendorRequired')
   if (!input.vendorRef.trim()) throw new ValidationError('vendorRefRequired')
   if (!input.lines.length) throw new ValidationError('linesRequired')
+  assertOpen(input.billDate)
   for (const l of input.lines) {
     if (!Number.isInteger(l.quantity) || l.quantity < 1) throw new ValidationError('quantityPositive')
     if (!(toCents(l.unitCost) > 0)) throw new ValidationError('costPositive')
@@ -204,6 +220,7 @@ export function createBill(input: CreateBillInput): Bill {
 export function payBills(input: PayBillsInput): Bill[] {
   const acct = accounts.find((a) => a.id === input.accountId)
   if (!acct) throw new ValidationError('accountRequired')
+  assertOpen(input.date)
   const chosen = input.billIds.map((id) => bills.find((b) => b.id === id))
   if (!chosen.length || chosen.some((b) => !b)) throw new ValidationError('billsRequired')
   if (chosen.some((b) => b!.status === 'approval')) throw new ValidationError('needsApproval')
@@ -212,6 +229,17 @@ export function payBills(input: PayBillsInput): Bill[] {
   if (totalCents > toCents(acct.balance)) throw new ValidationError('insufficientFunds')
   acct.balance = toMoney(toCents(acct.balance) - totalCents)
   for (const b of chosen) {
+    cashMoves.push({
+      id: `bp-${b!.id}-${Date.now()}`,
+      accountId: acct.id,
+      date: input.date,
+      kind: 'billPayment',
+      party: b!.vendorName,
+      reference: b!.id,
+      cents: -toCents(b!.due),
+      link: { kind: 'bill', id: b!.id },
+      matched: false,
+    })
     b!.paid = b!.total
     b!.due = '0.00'
     b!.status = 'paid'

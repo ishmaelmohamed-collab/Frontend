@@ -2,6 +2,7 @@ import { createContext, useContext } from 'react'
 import { appAr, appEn } from './messages-app'
 import { b2Ar, b2En } from './messages-batch2'
 import { b3Ar, b3En } from './messages-batch3'
+import { b4Ar, b4En } from './messages-batch4'
 
 export type Locale = 'en' | 'ar'
 
@@ -148,7 +149,8 @@ const en = {
 } as const
 
 type BaseKey = keyof typeof en
-export type MessageKey = BaseKey | keyof typeof appEn | keyof typeof b2En | keyof typeof b3En
+export type MessageKey =
+  BaseKey | keyof typeof appEn | keyof typeof b2En | keyof typeof b3En | keyof typeof b4En
 
 const ar: Record<BaseKey, string> = {
   'app.company': '[اسم شركتك]',
@@ -290,8 +292,8 @@ const ar: Record<BaseKey, string> = {
 }
 
 export const messages: Record<Locale, Record<MessageKey, string>> = {
-  en: { ...en, ...appEn, ...b2En, ...b3En },
-  ar: { ...ar, ...appAr, ...b2Ar, ...b3Ar },
+  en: { ...en, ...appEn, ...b2En, ...b3En, ...b4En },
+  ar: { ...ar, ...appAr, ...b2Ar, ...b3Ar, ...b4Ar },
 }
 
 export interface LocaleContextValue {

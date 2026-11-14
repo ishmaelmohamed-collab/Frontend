@@ -4,7 +4,7 @@
  * below zero, and stock only changes when an invoice is SENT (never for drafts).
  */
 import type { CreateInvoiceInput, CustomerSummary, Invoice, Item } from '@/types/domain'
-import { customers, invoices, ITEMS, toCents, toMoney, ValidationError } from './db'
+import { assertOpen, customers, invoices, ITEMS, toCents, toMoney, ValidationError } from './db'
 
 const STOCK: Record<string, number> = { i1: 140, i2: 36, i3: 6, i4: 80, i5: 220, i6: 45, i7: 12, i8: 18 }
 const REORDER: Record<string, number> = { i1: 20, i2: 10, i3: 10, i4: 15, i5: 40, i6: 10, i7: 15, i8: 5 }
@@ -38,6 +38,7 @@ export function createInvoice(input: CreateInvoiceInput): Invoice {
   const customer = customers().find((c) => c.id === input.customerId)
   if (!customer) throw new ValidationError('customerRequired')
   if (!input.lines.length) throw new ValidationError('linesRequired')
+  assertOpen(input.issueDate)
   const catalog = items()
   const lines = input.lines.map((l) => {
     const item = catalog.find((i) => i.id === l.itemId)

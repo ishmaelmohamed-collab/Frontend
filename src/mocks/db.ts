@@ -241,12 +241,38 @@ export class ValidationError extends Error {
   }
 }
 
+// ── cash movements that are not customer payments (batch 4) ─────
+/** Bill payments, transfers, fees and unapplied receipts. Customer payments live on their invoices. */
+export interface CashMove {
+  id: string
+  accountId: MoneyAccount['id']
+  date: string
+  kind: 'billPayment' | 'transferIn' | 'transferOut' | 'fee' | 'unapplied'
+  party: string
+  reference: string
+  cents: number // signed: + in, − out
+  link: { kind: 'bill'; id: string } | null
+  matched: boolean
+  /** Pairs the two halves of a transfer. */
+  group?: string
+}
+export const cashMoves: CashMove[] = []
+
+// ── period lock (business rule 4) ──────────────────────
+export const period: { lockedThrough: string | null } = { lockedThrough: null }
+
+/** Nothing dated on or before the locked date can be added or changed. */
+export function assertOpen(date: string) {
+  if (period.lockedThrough && date <= period.lockedThrough) throw new ValidationError('periodLocked')
+}
+
 /** Server-side rules for recording a payment (the UI checks the same, but the API is the authority). */
 export function recordPayment(invoiceId: string, input: RecordPaymentInput): Invoice {
   const inv = invoices.find((x) => x.id === invoiceId)
   if (!inv) throw new ValidationError('notFound')
   if (inv.status === 'draft' || inv.status === 'void' || inv.status === 'paid')
     throw new ValidationError('notPayable')
+  assertOpen(input.date)
   const cents = toCents(input.amount)
   if (!(cents > 0)) throw new ValidationError('amountPositive')
   if (input.method !== 'credit' && !input.reference.trim()) throw new ValidationError('referenceRequired')

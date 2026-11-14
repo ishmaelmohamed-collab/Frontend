@@ -34,6 +34,18 @@ const VendorsPage = lazy(() => lists().then((m) => ({ default: m.VendorsPage }))
 const OrdersPage = lazy(() => lists().then((m) => ({ default: m.OrdersPage })))
 const QuotesPage = lazy(() => lists().then((m) => ({ default: m.QuotesPage })))
 const PaymentsPage = lazy(() => lists().then((m) => ({ default: m.PaymentsPage })))
+const BankingPage = lazy(() =>
+  import('@/features/books/BankingPage').then((m) => ({ default: m.BankingPage })),
+)
+const ReconcilePage = lazy(() =>
+  import('@/features/books/ReconcilePage').then((m) => ({ default: m.ReconcilePage })),
+)
+const CloseMonthPage = lazy(() =>
+  import('@/features/books/CloseMonthPage').then((m) => ({ default: m.CloseMonthPage })),
+)
+const AccountsPage = lazy(() =>
+  import('@/features/books/AccountsPage').then((m) => ({ default: m.AccountsPage })),
+)
 // Design-phase pages (kept for review)
 const DirectionPage = lazy(() =>
   import('@/features/direction/DirectionPage').then((m) => ({ default: m.DirectionPage })),
@@ -64,6 +76,10 @@ export function App() {
         <Route path="orders" element={page(<OrdersPage />)} />
         <Route path="quotes" element={page(<QuotesPage />)} />
         <Route path="payments" element={page(<PaymentsPage />)} />
+        <Route path="banking" element={page(<BankingPage />)} />
+        <Route path="reconcile" element={page(<ReconcilePage />)} />
+        <Route path="close" element={page(<CloseMonthPage />)} />
+        <Route path="accounts" element={page(<AccountsPage />)} />
         {PLANNED.map((p) => (
           <Route key={p.to} path={p.to.slice(1)} element={<ComingSoon titleKey={p.key} batch={p.batch!} />} />
         ))}

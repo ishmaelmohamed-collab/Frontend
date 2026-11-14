@@ -20,6 +20,10 @@ export const formatDayMonth = (iso: string, locale: Locale) =>
 export const formatMonth = (yearMonth: string, locale: Locale) =>
   new Intl.DateTimeFormat(tag(locale), { month: 'short' }).format(parse(`${yearMonth}-01`))
 
+/** "2026-10" → "October 2026" / "أكتوبر 2026" */
+export const formatMonthYear = (yearMonth: string, locale: Locale) =>
+  new Intl.DateTimeFormat(tag(locale), { month: 'long', year: 'numeric' }).format(parse(`${yearMonth}-01`))
+
 /** Full weekday + date for greetings. */
 export const formatLongDate = (d: Date, locale: Locale) =>
   new Intl.DateTimeFormat(tag(locale), {

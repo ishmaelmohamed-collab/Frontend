@@ -30,7 +30,21 @@ export const usePayments = () =>
 function useRefresh() {
   const qc = useQueryClient()
   return () => {
-    for (const k of ['bills', 'vendors', 'orders', 'accounts', 'dashboard', 'items', 'invoices', 'quotes'])
+    for (const k of [
+      'bills',
+      'vendors',
+      'orders',
+      'accounts',
+      'dashboard',
+      'items',
+      'invoices',
+      'quotes',
+      'transactions',
+      'reconcile',
+      'ledger',
+      'journal',
+      'close',
+    ])
       void qc.invalidateQueries({ queryKey: [k] })
   }
 }

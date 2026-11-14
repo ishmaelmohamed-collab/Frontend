@@ -17,7 +17,7 @@ export function useCreateInvoice() {
   return useMutation({
     mutationFn: async (input: CreateInvoiceInput) => (await api.post<Invoice>('/invoices', input)).data,
     onSuccess: () => {
-      for (const key of ['invoices', 'dashboard', 'customers', 'items'])
+      for (const key of ['invoices', 'dashboard', 'customers', 'items', 'ledger', 'journal', 'close'])
         void qc.invalidateQueries({ queryKey: [key] })
     },
   })

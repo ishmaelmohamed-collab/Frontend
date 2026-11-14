@@ -21,6 +21,8 @@ declare module '@tanstack/react-table' {
     numeric?: boolean
     /** Left out of the phone card layout. */
     hideOnPhone?: boolean
+    /** Left out of a phone card when it has nothing to show for that row (e.g. "Money out" on money in). */
+    hideOnPhoneWhen?: (row: TData) => boolean
   }
 }
 

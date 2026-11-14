@@ -1,6 +1,6 @@
 # Project Brief — Accounting System Frontend
 
-**Restarted:** 14 Nov 2026 (clean start: all earlier design and code removed) · **Phase:** 5 — Screens (batch 1)
+**Restarted:** 14 Nov 2026 (clean start: all earlier design and code removed) · **Phase:** 5 — Screens (batch 4 built)
 
 Only the client's own answers were carried over. Everything else in this project is new.
 
@@ -59,7 +59,7 @@ Readability rules (checked):
 | 2. Look & feel   | Blue fog design direction page, English + Arabic                                                | ✅ Approved 14 Nov 2026  |
 | 3. Wireframes    | Key flows: invoice → payment, bill → payment, reconcile, month-end — clickable at `/wireframes` | ✅ Approved 14 Nov 2026  |
 | 4. Design system | All components, every state, LTR + RTL — live gallery at `/design-system`                       | ✅ Approved 14 Nov 2026  |
-| 5–6. Screens     | Every V1 screen built working on demo data, desktop + phone, EN + AR — in 5 batches (below)     | ⏳ Batch 1 in progress   |
+| 5–6. Screens     | Every V1 screen built working on demo data, desktop + phone, EN + AR — in 5 batches (below)     | ⏳ Batches 1–4 built     |
 | 7. Launch        | Connect real backend, QA, docs, handover                                                        | Final                    |
 
 ### Screen batches
@@ -69,5 +69,19 @@ Readability rules (checked):
 | 1     | App shell · Dashboard · Invoices list · Invoice detail + Record payment    | ✅ Built & tested (EN/AR, phone) — reviewed by client |
 | 2     | New invoice · Customers · Items & stock                                    | ✅ Built & tested — awaiting review                   |
 | 3     | Bills · Pay bills · Vendors · Purchase orders · Quotes · Payments received | ✅ Built & tested — awaiting review                   |
-| 4     | Bank & wallets · Reconciliation · Close month · Accounts & journal         | —                                                     |
+| 4     | Bank & wallets · Reconciliation · Close month · Accounts & journal         | ✅ Built & tested — awaiting review                   |
+
+### How the books work (batch 4)
+
+- Every journal entry is built from real documents (invoices, payments, bills, bill payments, transfers,
+  fees, unapplied receipts) plus manual entries — debits always equal credits, so the trial balance is a real check.
+- Stock uses the **periodic method**: goods bought go to Purchases; the month-end stock count corrects the stock value.
+- **Automatic accounts** (bank, wallets, receivable, payable) can't be used in manual journal entries.
+- **Reconciliation:** a person confirms every statement line (Match · Record & match · Add as fee · Hold as
+  unapplied). Each fix creates a real record. "Left to explain" must reach $0.00; entries in the books but not
+  yet on the statement are listed separately.
+- **Close month** checklist: each account reconciled, no draft invoices in the month, no bills waiting for
+  approval, stock count recorded. Lock and reopen: Owner only, with a written reason, kept in the audit log.
+  Nothing dated in a locked month can be added (invoices, bills, payments, transfers, journal entries).
+- Demo assumptions: opening stock value $38,640.00; earlier wallet-to-bank sweeps seeded so opening balances are positive.
 | 5     | Reports · Settings · Sign-in & roles                                       | —                                                     |
