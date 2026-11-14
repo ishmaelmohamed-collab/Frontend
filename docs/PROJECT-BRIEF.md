@@ -84,4 +84,4 @@ Readability rules (checked):
   approval, stock count recorded. Lock and reopen: Owner only, with a written reason, kept in the audit log.
   Nothing dated in a locked month can be added (invoices, bills, payments, transfers, journal entries).
 - Demo assumptions: opening stock value $38,640.00; earlier wallet-to-bank sweeps seeded so opening balances are positive.
-| 5     | Reports · Settings · Sign-in & roles                                       | —                                                     |
+  | 5 | Reports · Settings · Sign-in & roles | — |
