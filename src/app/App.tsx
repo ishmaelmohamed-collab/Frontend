@@ -61,6 +61,9 @@ const DirectionPage = lazy(() =>
 const DesignSystemPage = lazy(() =>
   import('@/features/design-system/DesignSystemPage').then((m) => ({ default: m.DesignSystemPage })),
 )
+const ConceptsPage = lazy(() =>
+  import('@/features/concepts/ConceptsPage').then((m) => ({ default: m.ConceptsPage })),
+)
 const Wireframes = lazy(() =>
   import('@/features/wireframes/WireframeRoutes').then((m) => ({ default: m.WireframeRoutes })),
 )
@@ -105,6 +108,7 @@ export function App() {
       </Route>
       <Route path="direction" element={page(<DirectionPage />)} />
       <Route path="design-system" element={page(<DesignSystemPage />)} />
+      <Route path="concepts" element={page(<ConceptsPage />)} />
       <Route path="wireframes/*" element={page(<Wireframes />)} />
     </Routes>
   )

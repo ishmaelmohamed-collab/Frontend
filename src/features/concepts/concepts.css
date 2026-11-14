@@ -1,0 +1,112 @@
+/*
+ * Three design concepts for comparison (/concepts).
+ * Client rule: ONLY TWO COLOURS. Every value below is a shade or tint of the concept's two hues —
+ * text, lines, charts and "overdue" included. Overdue is shown with an icon, words and a solid fill,
+ * never with a third colour. Fonts load only on this page.
+ */
+@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/noto-naskh-arabic';
+@import '@fontsource-variable/readex-pro';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/rubik';
+
+/* A · Ledger — paper + ink green. */
+.c-ledger {
+  --bg: #f5f1e8; /* paper */
+  --surface: #fffdf8; /* paper, lightest */
+  --rule: #d9d2c3; /* paper, darker */
+  --brand: #1e4636; /* ink green */
+  --brand-hover: #163527;
+  --brand-soft: #e3ebe4; /* green, lightest */
+  --on-brand: #fffdf8;
+  --ink: #14291f; /* green, darkest — 14:1 on paper */
+  --muted: #4a6458; /* green, mid — 5.6:1 on paper */
+  --rule-strong: #1e4636;
+  --alert: #1e4636; /* overdue = solid green chip + ▲ + words */
+  --alert-soft: #e3ebe4;
+  --chart-1: #1e4636;
+  --chart-2: #9db59a; /* green tint; values are printed beside every bar */
+  --radius: 2px;
+  --display: 'Fraunces Variable', 'Noto Naskh Arabic Variable', Georgia, serif;
+  --text: 'Manrope Variable', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --num: 'Fraunces Variable', Georgia, serif;
+  color: var(--ink);
+  font-family: var(--text);
+}
+.c-ledger:lang(ar) {
+  --display: 'Noto Naskh Arabic Variable', 'Fraunces Variable', serif;
+  --text: 'IBM Plex Sans Arabic', 'Manrope Variable', sans-serif;
+}
+
+/* B · Night desk — graphite + amber. */
+.c-night {
+  --bg: #13161c; /* graphite */
+  --surface: #1a1d23;
+  --surface-2: #22262e;
+  --rule: #2e333c;
+  --rule-strong: #4a515d;
+  --brand: #f0b429; /* amber */
+  --brand-hover: #f5c451;
+  --brand-soft: #3a3121; /* amber, darkest */
+  --on-brand: #13161c;
+  --ink: #f3ebdd; /* amber, lightest — 15:1 on graphite */
+  --muted: #a3a9b3; /* graphite, light — 7.1:1 */
+  --alert: #f0b429; /* overdue = solid amber chip + ! + words */
+  --alert-soft: #3a3121;
+  --chart-1: #bf8411; /* amber, deeper */
+  --chart-2: #7c8594; /* graphite, light */
+  --radius: 6px;
+  --display: 'Readex Pro Variable', system-ui, sans-serif;
+  --text: 'Readex Pro Variable', system-ui, sans-serif;
+  --num: 'JetBrains Mono Variable', ui-monospace, monospace;
+  color: var(--ink);
+  font-family: var(--text);
+  color-scheme: dark;
+}
+
+/* C · Bloom — lilac + violet. */
+.c-bloom {
+  --bg: #f1edfa; /* lilac */
+  --surface: #ffffff;
+  --rule: #e2dcf1;
+  --rule-strong: #c9bfe8;
+  --brand: #3d2c8d; /* violet */
+  --brand-hover: #31236f;
+  --brand-soft: #e4dcf7;
+  --on-brand: #ffffff;
+  --ink: #1f1838; /* violet, darkest */
+  --muted: #5d5678; /* violet, mid — 6.9:1 on white */
+  --alert: #3d2c8d; /* overdue = solid violet chip + ⚠ + words */
+  --alert-soft: #e4dcf7;
+  --chart-1: #5b44c9; /* violet */
+  --chart-2: #a08bea; /* violet tint */
+  --radius: 22px;
+  --display: 'Rubik Variable', system-ui, sans-serif;
+  --text: 'Rubik Variable', system-ui, sans-serif;
+  --num: 'Rubik Variable', system-ui, sans-serif;
+  color: var(--ink);
+  font-family: var(--text);
+}
+
+.c-display {
+  font-family: var(--display);
+}
+.c-num {
+  font-family: var(--num);
+  font-variant-numeric: tabular-nums lining-nums;
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+.c-ledger .c-display {
+  font-variation-settings:
+    'opsz' 72,
+    'SOFT' 50;
+}
+.c-ledger .c-num {
+  font-variation-settings: 'opsz' 14;
+}
+.c-focus:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
