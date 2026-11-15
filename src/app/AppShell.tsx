@@ -1,4 +1,4 @@
-import { FileText, Home, Languages, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Users, X } from 'lucide-react'
+import { ChevronRight, FileText, Home, Languages, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IconButton } from '@/components/ui/Button'
@@ -78,9 +78,21 @@ function BrandSync() {
 function SideNav({ onNavigate, collapsed }: { onNavigate?: () => void; collapsed?: boolean }) {
   const { t } = useLocale()
   const { can } = useSession()
+  const { pathname } = useLocation()
   const groups = NAV.map((g) => ({ ...g, items: g.items.filter((i) => !i.perm || can(i.perm)) })).filter(
     (g) => g.items.length > 0,
   )
+
+  // Expand the branch that holds the current route by default.
+  const [open, setOpen] = useState<Record<string, boolean>>(() => {
+    const init: Record<string, boolean> = {}
+    for (const g of NAV) {
+      const key = g.group ?? '__top__'
+      if (g.items.some((i) => pathname === i.to || pathname.startsWith(`${i.to}/`))) init[key] = true
+    }
+    return init
+  })
+  const toggle = (key: string) => setOpen((p) => ({ ...p, [key]: !p[key] }))
 
   // Collapsed: icon-only rail.
   if (collapsed) {
@@ -106,39 +118,52 @@ function SideNav({ onNavigate, collapsed }: { onNavigate?: () => void; collapsed
     )
   }
 
+  // Expanded: a tree — collapsible branches with indented leaves.
   return (
-    <nav aria-label="Main" className="flex flex-col gap-5">
-      {groups.map((g, i) => (
-        <div key={g.group ?? i}>
-          {g.group && (
-            <p className="text-ink-subtle mb-1 px-3 text-[11px] font-bold tracking-wider uppercase">
-              {t(g.group)}
-            </p>
-          )}
-          <ul className="flex flex-col gap-0.5">
-            {g.items.map(({ to, key, icon: Icon }) => (
-              <li key={to}>
-                <NavLink
-                  to={to}
-                  end={to === '/'}
-                  onClick={onNavigate}
-                  className={({ isActive }) =>
-                    cn(
-                      'flex min-h-9 items-center gap-3 rounded-lg px-3 text-sm transition-colors duration-150 pointer-coarse:min-h-11',
-                      isActive
-                        ? 'bg-mist text-slate font-bold'
-                        : 'text-ink-muted hover:bg-mist-soft hover:text-ink',
-                    )
-                  }
-                >
-                  <Icon aria-hidden className="size-4 shrink-0" />
-                  <span className="flex-1">{t(key)}</span>
-                </NavLink>
-              </li>
-            ))}
-          </ul>
-        </div>
-      ))}
+    <nav aria-label="Main" className="flex flex-col gap-1">
+      {groups.map((g) => {
+        const key = g.group ?? '__top__'
+        const isOpen = open[key] ?? false
+        return (
+          <div key={key}>
+            {g.group && (
+              <button
+                type="button"
+                onClick={() => toggle(key)}
+                aria-expanded={isOpen}
+                className="text-ink-subtle hover:bg-mist-soft hover:text-ink flex w-full items-center gap-1 rounded-lg px-2 py-2 text-[11px] font-bold tracking-wider uppercase transition-colors"
+              >
+                <ChevronRight className={cn('size-3.5 shrink-0 transition-transform', isOpen && 'rotate-90')} />
+                {t(g.group)}
+              </button>
+            )}
+            {(!g.group || isOpen) && (
+              <ul className={cn('flex flex-col gap-0.5', g.group && 'border-line ms-3 border-s ps-2')}>
+                {g.items.map(({ to, key: itemKey, icon: Icon }) => (
+                  <li key={to}>
+                    <NavLink
+                      to={to}
+                      end={to === '/'}
+                      onClick={onNavigate}
+                      className={({ isActive }) =>
+                        cn(
+                          'flex min-h-9 items-center gap-3 rounded-lg px-3 text-sm transition-colors duration-150 pointer-coarse:min-h-11',
+                          isActive
+                            ? 'bg-mist text-slate font-bold'
+                            : 'text-ink-muted hover:bg-mist-soft hover:text-ink',
+                        )
+                      }
+                    >
+                      <Icon aria-hidden className="size-4 shrink-0" />
+                      <span className="flex-1">{t(itemKey)}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+      })}
     </nav>
   )
 }
