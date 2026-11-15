@@ -7,6 +7,7 @@ import { TextField } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Layout'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import { useSession } from '@/lib/session-context'
+import { ThemeSwitcher } from '@/app/ThemeSwitcher'
 import { errorCode } from '../books/api'
 import { useSignIn } from './api'
 
@@ -53,29 +54,32 @@ export function SignInPage() {
         <span className="flex items-center gap-2.5">
           <span
             aria-hidden
-            className="border-line-input text-ink-muted grid size-9 place-items-center rounded-xl border-2 border-dashed text-[9px]"
+            className="bg-slate text-panel font-serif grid size-9 place-items-center rounded-lg text-lg font-bold"
           >
-            Logo
+            L
           </span>
-          <bdi className="font-bold">{t('app.company')}</bdi>
+          <bdi className="font-serif text-base font-bold tracking-tight">{t('app.company')}</bdi>
         </span>
-        <button
-          type="button"
-          lang={locale === 'en' ? 'ar' : 'en'}
-          aria-label={t('app.switchLabel')}
-          onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}
-          className="border-line-input hover:bg-mist-soft rounded-control inline-flex min-h-10 items-center gap-2 border px-3 text-sm font-semibold pointer-coarse:min-h-11"
-        >
-          <Languages aria-hidden className="size-4" />
-          {t('app.switch')}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher />
+          <button
+            type="button"
+            lang={locale === 'en' ? 'ar' : 'en'}
+            aria-label={t('app.switchLabel')}
+            onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}
+            className="border-line-input hover:bg-mist-soft rounded-control inline-flex min-h-10 items-center gap-2 border px-3 text-sm font-semibold pointer-coarse:min-h-11"
+          >
+            <Languages aria-hidden className="size-4" />
+            {t('app.switch')}
+          </button>
+        </div>
       </header>
 
       <main className="flex flex-1 items-start justify-center px-4 pt-4 pb-12 sm:pt-12">
         <div className="flex w-full max-w-md flex-col gap-6">
           <Card className="overflow-hidden">
             <div className="fog-soft border-line border-b px-6 py-5">
-              <h1 className="text-2xl font-extrabold tracking-tight">{t('auth.title')}</h1>
+              <h1 className="font-serif text-2xl font-semibold tracking-tight">{t('auth.title')}</h1>
               <p className="text-ink-muted mt-1 text-sm">{t('auth.sub')}</p>
             </div>
             <form noValidate onSubmit={submit} className="flex flex-col gap-4 p-6">
