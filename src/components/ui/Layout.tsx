@@ -4,7 +4,10 @@ import { cn } from '@/lib/cn'
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
-    <section className={cn('bg-panel border-line rounded-card shadow-card border', className)} {...props} />
+    <section
+      className={cn('bg-panel border-line rounded-card shadow-card border transition-shadow duration-200', className)}
+      {...props}
+    />
   )
 }
 
@@ -20,7 +23,7 @@ export function CardHeader({
   return (
     <header className="flex flex-wrap items-start justify-between gap-2 px-5 pt-5">
       <div>
-        <h2 className="text-base font-bold">{title}</h2>
+        <h2 className="font-serif text-lg font-semibold tracking-tight">{title}</h2>
         {description && <p className="text-ink-muted mt-0.5 text-sm">{description}</p>}
       </div>
       {action}
@@ -40,7 +43,7 @@ export function PageHeader({
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{title}</h1>
+        <h1 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
         {description && <div className="text-ink-muted mt-1 text-sm">{description}</div>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -66,7 +69,7 @@ export function StatCard({
   return (
     <section
       className={cn(
-        'rounded-card shadow-card p-5',
+        'rounded-card shadow-card p-5 transition-transform duration-200 hover:-translate-y-0.5',
         variant === 'featured' && 'fog-soft border-line border',
         variant === 'default' && 'bg-panel border-line border',
         variant === 'overdue' && 'bg-panel border-alert border-2',
@@ -81,7 +84,7 @@ export function StatCard({
         {variant === 'overdue' && <AlertTriangle aria-hidden className="size-4" />}
         {label}
       </h2>
-      <p className={cn('mt-1 text-2xl font-extrabold', variant === 'overdue' && 'text-alert')}>{value}</p>
+      <p className={cn('mt-1 text-3xl font-semibold tracking-tight', variant === 'overdue' && 'text-alert')}>{value}</p>
       {footnote && <div className="text-ink-muted mt-1 text-sm">{footnote}</div>}
     </section>
   )

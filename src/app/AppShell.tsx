@@ -1,4 +1,4 @@
-import { FileText, Home, Languages, LogOut, Menu, Plus, Users, X } from 'lucide-react'
+import { FileText, Home, Languages, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IconButton } from '@/components/ui/Button'
@@ -9,17 +9,17 @@ import { useSession } from '@/lib/session-context'
 import { NAV } from './navigation'
 import { ThemeSwitcher } from './ThemeSwitcher'
 
-function Logo() {
+function Logo({ collapsed }: { collapsed?: boolean }) {
   const { t } = useLocale()
   return (
-    <Link to="/" className="flex items-center gap-2.5">
+    <Link to="/" className={cn('flex items-center gap-2.5', collapsed && 'justify-center')}>
       <span
         aria-hidden
-        className="border-line-input text-ink-muted grid size-9 place-items-center rounded-xl border-2 border-dashed text-[9px]"
+        className="bg-slate text-panel font-serif grid size-9 shrink-0 place-items-center rounded-lg text-lg font-bold"
       >
-        Logo
+        L
       </span>
-      <bdi className="font-bold">{t('app.company')}</bdi>
+      {!collapsed && <bdi className="font-serif text-base font-bold tracking-tight">{t('app.company')}</bdi>}
     </Link>
   )
 }
@@ -33,10 +33,19 @@ const initials = (name: string) =>
     .toUpperCase()
 
 /** Signed-in person, their role, and Sign out (bottom of the sidebar and the phone menu). */
-function UserBox() {
+function UserBox({ collapsed }: { collapsed?: boolean }) {
   const { t } = useLocale()
   const { user, signOut } = useSession()
   if (!user) return null
+  if (collapsed) {
+    return (
+      <div className="border-line mt-auto flex justify-center border-t px-2 pt-4">
+        <span aria-hidden className="bg-slate grid size-9 place-items-center rounded-full text-xs font-bold text-white">
+          {initials(user.name)}
+        </span>
+      </div>
+    )
+  }
   return (
     <div className="border-line mt-auto flex items-center gap-3 border-t px-3 pt-4">
       <span
@@ -66,12 +75,37 @@ function BrandSync() {
   return null
 }
 
-function SideNav({ onNavigate }: { onNavigate?: () => void }) {
+function SideNav({ onNavigate, collapsed }: { onNavigate?: () => void; collapsed?: boolean }) {
   const { t } = useLocale()
   const { can } = useSession()
   const groups = NAV.map((g) => ({ ...g, items: g.items.filter((i) => !i.perm || can(i.perm)) })).filter(
     (g) => g.items.length > 0,
   )
+
+  // Collapsed: icon-only rail.
+  if (collapsed) {
+    return (
+      <nav aria-label="Main" className="flex flex-col items-center gap-1">
+        {groups.flatMap((g) => g.items).map(({ to, key, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={to === '/'}
+            title={t(key)}
+            className={({ isActive }) =>
+              cn(
+                'grid size-10 place-items-center rounded-lg transition-colors',
+                isActive ? 'bg-mist text-slate' : 'text-ink-muted hover:bg-mist-soft hover:text-ink',
+              )
+            }
+          >
+            <Icon aria-hidden className="size-5" />
+          </NavLink>
+        ))}
+      </nav>
+    )
+  }
+
   return (
     <nav aria-label="Main" className="flex flex-col gap-5">
       {groups.map((g, i) => (
@@ -117,6 +151,7 @@ export function AppShell() {
   const { t, locale, setLocale } = useLocale()
   const { user, can } = useSession()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
   const { pathname } = useLocation()
 
   useEffect(() => {
@@ -133,7 +168,7 @@ export function AppShell() {
   ]
 
   return (
-    <div className="bg-canvas min-h-dvh lg:grid lg:grid-cols-[256px_1fr]">
+    <div className={cn('bg-canvas min-h-dvh lg:grid', collapsed ? 'lg:grid-cols-[64px_1fr]' : 'lg:grid-cols-[256px_1fr]')}>
       <a
         href="#main"
         className="bg-slate sr-only z-50 rounded-md px-4 py-2 text-white focus:not-sr-only focus:fixed focus:start-2 focus:top-2"
@@ -142,11 +177,11 @@ export function AppShell() {
       </a>
 
       <aside className="no-print bg-panel border-line sticky top-0 hidden h-dvh flex-col gap-6 overflow-y-auto border-e px-3 py-5 lg:flex">
-        <div className="px-3">
-          <Logo />
+        <div className={cn('px-3', collapsed && 'px-1')}>
+          <Logo collapsed={collapsed} />
         </div>
-        <SideNav />
-        <UserBox />
+        <SideNav collapsed={collapsed} />
+        <UserBox collapsed={collapsed} />
       </aside>
       <BrandSync />
 
@@ -183,6 +218,14 @@ export function AppShell() {
 
       <div className="min-w-0">
         <header className="no-print bg-panel/90 border-line sticky top-0 z-40 flex h-16 items-center gap-3 border-b px-4 backdrop-blur sm:px-6">
+          <button
+            type="button"
+            onClick={() => setCollapsed((c) => !c)}
+            aria-label={collapsed ? t('shell.openMenu') : t('shell.closeMenu')}
+            className="border-line-input hover:bg-mist-soft hidden size-10 place-items-center rounded-control border lg:inline-flex"
+          >
+            {collapsed ? <PanelLeftOpen aria-hidden className="size-4" /> : <PanelLeftClose aria-hidden className="size-4" />}
+          </button>
           <div className="lg:hidden">
             <Logo />
           </div>
@@ -217,7 +260,11 @@ export function AppShell() {
           </div>
         </header>
 
-        <main id="main" className="mx-auto max-w-7xl px-4 pt-6 pb-28 sm:px-6 lg:px-8 lg:pb-10">
+        <main
+          id="main"
+          key={pathname}
+          className="page-enter mx-auto max-w-7xl px-4 pt-6 pb-28 sm:px-6 lg:px-8 lg:pb-10"
+        >
           <Outlet />
         </main>
       </div>
