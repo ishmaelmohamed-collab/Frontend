@@ -4,6 +4,8 @@ import { can, type Permission } from './permissions'
 
 export interface SessionContextValue {
   user: User | null
+  /** False until the first /auth/me answer — guards wait instead of redirecting. */
+  ready: boolean
   signIn: (session: Session) => void
   signOut: () => void
   /** Shortcut for can(user.role, permission). */

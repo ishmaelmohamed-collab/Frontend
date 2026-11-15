@@ -40,8 +40,9 @@ function RevenueFootnote({ d }: { d: DashboardSummary }) {
   const Icon = up ? TrendingUp : TrendingDown
   return (
     <span className="flex flex-wrap items-center gap-1.5">
-      <Icon aria-hidden className="text-slate size-4" />
-      <bdi dir="ltr" className="text-slate font-bold">
+      {/* Inherits the card's text colour, so it reads on both the light and the dark (featured) card. */}
+      <Icon aria-hidden className="size-4" />
+      <bdi dir="ltr" className="font-bold">
         {up ? '+' : '−'}
         {change.abs().toFixed(1)}%
       </bdi>

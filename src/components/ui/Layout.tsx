@@ -5,7 +5,10 @@ import { cn } from '@/lib/cn'
 export function Card({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
     <section
-      className={cn('bg-panel border-line rounded-card shadow-card border transition-shadow duration-200', className)}
+      className={cn(
+        'bg-panel border-line rounded-card shadow-card border transition-shadow duration-200',
+        className,
+      )}
       {...props}
     />
   )
@@ -70,7 +73,7 @@ export function StatCard({
   return (
     <section
       className={cn(
-        'rounded-card shadow-card p-5 transition-transform duration-200 hover:-translate-y-0.5',
+        'rounded-card shadow-card p-5',
         variant === 'featured' && 'bg-slate text-white',
         variant === 'default' && 'bg-panel border-line border',
         variant === 'overdue' && 'bg-panel border-alert border-2',
@@ -85,8 +88,12 @@ export function StatCard({
         {variant === 'overdue' && <AlertTriangle aria-hidden className="size-4" />}
         {label}
       </h2>
-      <p className={cn('mt-1 text-3xl font-semibold tracking-tight', variant === 'overdue' && 'text-alert')}>{value}</p>
-      {footnote && <div className={cn('mt-1 text-sm', dark ? 'text-white/70' : 'text-ink-muted')}>{footnote}</div>}
+      <p className={cn('mt-1 text-3xl font-semibold tracking-tight', variant === 'overdue' && 'text-alert')}>
+        {value}
+      </p>
+      {footnote && (
+        <div className={cn('mt-1 text-sm', dark ? 'text-white/70' : 'text-ink-muted')}>{footnote}</div>
+      )}
     </section>
   )
 }

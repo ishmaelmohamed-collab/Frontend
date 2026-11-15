@@ -1,19 +1,39 @@
 import type { Role, User } from '@/types/domain'
 
-/** Map our backend's roles onto the frontend's role set. */
+/**
+ * Map a role from the API onto the frontend's role set. Accepts the backend's names
+ * (admin, accountant, viewer) and the frontend's own (owner, accountant, cashier, sales).
+ * Anything unknown gets the most limited role.
+ */
 export function mapRole(role: string): Role {
-  if (role === 'admin') return 'owner'
-  if (role === 'accountant') return 'accountant'
-  return 'cashier' // viewer → a limited role for now
+  switch (role) {
+    case 'admin':
+    case 'owner':
+      return 'owner'
+    case 'accountant':
+      return 'accountant'
+    case 'cashier':
+    case 'viewer':
+      return 'cashier'
+    default:
+      return 'sales'
+  }
 }
 
-/** Build the frontend's User shape from a backend username + role. */
-export function toUser(username: string, role: string): User {
+/** What /auth/login and /auth/me return. `name` is optional (the demo API sends it). */
+export interface AuthResponse {
+  username: string
+  role: string
+  name?: string
+}
+
+/** Build the frontend's User shape from the API's sign-in answer. */
+export function toUser(a: AuthResponse): User {
   return {
-    id: username,
-    name: username,
-    email: `${username}@accounting.local`,
-    role: mapRole(role),
+    id: a.username,
+    name: a.name || a.username,
+    email: a.username,
+    role: mapRole(a.role),
     active: true,
   }
 }

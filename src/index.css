@@ -38,12 +38,6 @@
   --color-alert: #b42318;
   --color-alert-soft: #fef3f2;
 
-  /* Success green + attention amber (paid, partial, positive figures) */
-  --color-success: #1e6b4f;
-  --color-success-soft: #e6f2ec;
-  --color-warning: #b7791f;
-  --color-warning-soft: #f8f0e0;
-
   /* Neutrals */
   --color-canvas: #f6f8fb;
   --color-panel: #ffffff;
@@ -163,64 +157,35 @@
 
 /*
  * ─── Theme: Ledger ─────────────────────────────────────────────
- * Warm paper, ink navy, red ink. Editorial / bookkeeper feel.
+ * Client rule: two colours only — warm paper + ink navy. Every surface, line and text
+ * shade below comes from those two. Warning red stays for overdue and errors only
+ * (client decision B, confirmed "keep red for now", 14 Nov 2026).
  */
 [data-theme='ledger'] {
+  /* paper family */
+  --color-canvas: #fbf7f0;
+  --color-panel: #fffdf8;
   --color-mist: #e9e0cf;
-  --color-slate: #1f2a3d;
   --color-mist-soft: #f6efe3;
   --color-mist-strong: #ddd2bd;
+  --color-line: #e5dccb;
+  --color-line-input: #8f8471; /* 3.4:1 on panel — visible input borders */
+  /* ink navy family */
+  --color-slate: #1f2a3d;
   --color-slate-hover: #182232;
   --color-slate-pressed: #121a28;
   --color-slate-disabled: #a8b0c0;
-  --color-alert: #c0392b;
-  --color-alert-soft: #fbf0ec;
-  --color-success: #1e6b4f;
-  --color-success-soft: #e8f1ec;
-  --color-warning: #b7791f;
-  --color-warning-soft: #f6ede0;
-  --color-canvas: #fbf7f0;
-  --color-panel: #fffdf8;
   --color-ink: #1f2a3d;
   --color-ink-muted: #4a5468;
-  --color-ink-subtle: #8a93a6;
-  --color-line: #e5dccb;
-  --color-line-input: #b0a692;
+  --color-ink-subtle: #5f6a7f; /* 5.0:1 on canvas — readable small text */
+  /* the one approved exception */
+  --color-alert: #b42318;
+  --color-alert-soft: #fbf0ec;
   --radius-control: 6px;
   --radius-card: 8px;
   --radius-panel: 10px;
   --shadow-card: 0 1px 2px rgba(31, 42, 61, 0.06), 0 4px 14px rgba(31, 42, 61, 0.1);
   --shadow-overlay: 0 16px 40px rgba(31, 42, 61, 0.24);
-}
-
-/*
- * ─── Theme: Notion ─────────────────────────────────────────────
- * Warm neutral greys, near-black text, subtle borders.
- */
-[data-theme='notion'] {
-  --color-mist: #f1f1ef;
-  --color-slate: #37352f;
-  --color-mist-soft: #f7f7f5;
-  --color-mist-strong: #e9e9e7;
-  --color-slate-hover: #2f2e2b;
-  --color-slate-pressed: #262523;
-  --color-slate-disabled: #c4c3c0;
-  --color-alert: #eb5757;
-  --color-alert-soft: #fdf0f0;
-  --color-success: #0f7b6c;
-  --color-success-soft: #e6f2f0;
-  --color-warning: #d4a72c;
-  --color-warning-soft: #faf3e0;
-  --color-canvas: #fafaf9;
-  --color-panel: #ffffff;
-  --color-ink: #37352f;
-  --color-ink-muted: #787774;
-  --color-ink-subtle: #9b9a97;
-  --color-line: #e9e9e7;
-  --color-line-input: #b8b6b1;
-  --radius-control: 8px;
-  --radius-card: 10px;
-  --radius-panel: 12px;
 }
 
 /* Motion — subtle entrance + smooth hovers */

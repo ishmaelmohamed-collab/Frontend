@@ -11,8 +11,8 @@ export type DocumentStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' |
 const styles: Record<DocumentStatus, { cls: string; Icon: typeof Check }> = {
   draft: { cls: 'border border-line text-ink-muted bg-panel', Icon: FilePen },
   sent: { cls: 'bg-mist-soft text-slate', Icon: Send },
-  partial: { cls: 'bg-warning-soft text-warning', Icon: CircleDashed },
-  paid: { cls: 'bg-success-soft text-success', Icon: Check },
+  partial: { cls: 'bg-mist text-slate', Icon: CircleDashed },
+  paid: { cls: 'bg-slate text-panel', Icon: Check },
   overdue: { cls: 'bg-alert-soft text-alert border border-alert/30', Icon: AlertTriangle },
   void: { cls: 'text-ink-subtle line-through bg-canvas', Icon: X },
 }

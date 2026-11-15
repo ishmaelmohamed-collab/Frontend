@@ -5,7 +5,12 @@ import { BrowserRouter } from 'react-router'
 import { App } from './app/App'
 import { LocaleProvider } from './lib/LocaleProvider'
 import { SessionProvider } from './lib/SessionProvider'
+import { applyTheme, readTheme } from './lib/theme'
+
 import './index.css'
+
+// Apply the saved theme before the first paint, so no screen flashes in the wrong colours.
+applyTheme(readTheme())
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, retry: 1, refetchOnWindowFocus: false } },

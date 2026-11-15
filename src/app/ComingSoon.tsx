@@ -3,14 +3,16 @@ import type { ReactNode } from 'react'
 import { Navigate, useLocation } from 'react-router'
 import { ButtonLink } from '@/components/ui/Button'
 import { Card, PageHeader } from '@/components/ui/Layout'
+import { Skeleton } from '@/components/ui/States'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import type { Permission } from '@/lib/permissions'
 import { useSession } from '@/lib/session-context'
 
 /** Signed-out visitors go to the sign-in screen, and come back here afterwards. */
 export function RequireUser({ children }: { children: ReactNode }) {
-  const { user } = useSession()
+  const { user, ready } = useSession()
   const { pathname, search } = useLocation()
+  if (!ready) return <Skeleton rows={6} label="…" />
   if (!user) return <Navigate to="/sign-in" replace state={{ from: pathname + search }} />
   return children
 }

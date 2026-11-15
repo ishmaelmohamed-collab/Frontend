@@ -5,18 +5,21 @@ import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Feedback'
 import { TextField } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Layout'
+import { isAxiosError } from 'axios'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
+import { ROLES } from '@/lib/permissions'
 import { useSession } from '@/lib/session-context'
 import { ThemeSwitcher } from '@/app/ThemeSwitcher'
 import { errorCode } from '../books/api'
 import { useSignIn } from './api'
 
+/**
+ * Demo mode (no backend): the in-browser mock API accepts these test accounts, also listed in README.md.
+ * With the real backend nothing is shown here — real accounts are created by the Owner.
+ */
+const DEMO = import.meta.env.VITE_USE_MOCKS !== 'false'
 const DEMO_PASSWORD = 'demo1234'
-const DEMO_ACCOUNTS = [
-  { username: 'admin', password: 'admin12345', role: 'owner' as const },
-  { username: 'accountant', password: 'acc12345', role: 'accountant' as const },
-  { username: 'viewer', password: 'view12345', role: 'cashier' as const },
-]
+const DEMO_ACCOUNTS = ROLES.map((role) => ({ username: role, role }))
 
 export function SignInPage() {
   const { t, locale, setLocale } = useLocale()
@@ -34,7 +37,7 @@ export function SignInPage() {
   const submit = async (e: FormEvent) => {
     e.preventDefault()
     const errs: typeof errors = {}
-    if (!username.trim()) errs.email = 'err.emailRequired'
+    if (!username.trim()) errs.email = 'err.usernameRequired'
     if (!password) errs.password = 'err.passwordRequired'
     setErrors(errs)
     if (Object.keys(errs).length) return
@@ -46,7 +49,11 @@ export function SignInPage() {
     }
   }
 
-  const code = mutation.isError ? errorCode(mutation.error) : null
+  // The real backend answers a wrong password with 401 and no code; the demo API with code "badCredentials".
+  const code = !mutation.isError
+    ? null
+    : (errorCode(mutation.error) ??
+      (isAxiosError(mutation.error) && mutation.error.response?.status === 401 ? 'badCredentials' : null))
 
   return (
     <div className="bg-canvas flex min-h-dvh flex-col">
@@ -54,7 +61,7 @@ export function SignInPage() {
         <span className="flex items-center gap-2.5">
           <span
             aria-hidden
-            className="bg-slate text-panel font-serif grid size-9 place-items-center rounded-lg text-lg font-bold"
+            className="bg-slate text-panel grid size-9 place-items-center rounded-lg font-serif text-lg font-bold"
           >
             L
           </span>
@@ -87,7 +94,7 @@ export function SignInPage() {
               {code === 'inactive' && <Alert tone="error" title={t('err.inactive')} />}
               {mutation.isError && !code && <Alert tone="error" title={t('err.signInServer')} />}
               <TextField
-                label={t('auth.email')}
+                label={t('auth.username')}
                 type="text"
                 autoComplete="username"
                 dir="ltr"
@@ -133,35 +140,38 @@ export function SignInPage() {
             </form>
           </Card>
 
-          <Card className="p-5">
-            <h2 className="text-sm font-bold">{t('auth.demoTitle')}</h2>
-            <p className="text-ink-muted mt-1 text-xs">
-              {t('auth.demoHint')}{' '}
-              <bdi dir="ltr" className="text-ink font-semibold">
-                {DEMO_PASSWORD}
-              </bdi>
-            </p>
-            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-              {DEMO_ACCOUNTS.map((a) => (
-                <li key={a.username}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setUsername(a.username)
-                      setPassword(a.password)
-                      setErrors({})
-                    }}
-                    className="border-line-input hover:bg-mist-soft rounded-control flex min-h-11 w-full flex-col items-start px-3 py-2 text-start"
-                  >
-                    <span className="text-sm font-semibold">{t(`role.${a.role}` as MessageKey)}</span>
-                    <bdi dir="ltr" className="text-ink-muted text-xs">
-                      {a.username}
-                    </bdi>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </Card>
+          {DEMO && (
+            <Card className="p-5">
+              <h2 className="text-sm font-bold">{t('auth.demoTitle')}</h2>
+              <p className="text-ink-muted mt-1 text-xs">{t('auth.demoOnly')}</p>
+              <p className="text-ink-muted mt-1 text-xs">
+                {t('auth.demoHint')}{' '}
+                <bdi dir="ltr" className="text-ink font-semibold">
+                  {DEMO_PASSWORD}
+                </bdi>
+              </p>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {DEMO_ACCOUNTS.map((a) => (
+                  <li key={a.username}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUsername(a.username)
+                        setPassword(DEMO_PASSWORD)
+                        setErrors({})
+                      }}
+                      className="border-line-input hover:bg-mist-soft rounded-control flex min-h-11 w-full flex-col items-start px-3 py-2 text-start"
+                    >
+                      <span className="text-sm font-semibold">{t(`role.${a.role}` as MessageKey)}</span>
+                      <bdi dir="ltr" className="text-ink-muted text-xs">
+                        {a.username}
+                      </bdi>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </Card>
+          )}
         </div>
       </main>
     </div>

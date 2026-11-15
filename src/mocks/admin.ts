@@ -1,10 +1,10 @@
 /**
  * Batch 5: sign-in, users & roles, company settings.
- * Demo only — the real backend will hash passwords and issue real tokens.
+ * Demo only — the real backend (backend/) hashes passwords and keeps a cookie session.
  * Demo accounts (all use the password below) are listed in README.md.
  */
 import { can, ROLES } from '@/lib/permissions'
-import type { Role, Session, Settings, User } from '@/types/domain'
+import type { Role, Settings, User } from '@/types/domain'
 import { settings, toCents, toMoney, ValidationError } from './db'
 import { applyApprovalLimit } from './purchases'
 
@@ -18,22 +18,51 @@ export const users: User[] = [
 ]
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const tokenFor = (u: User) => `demo.${u.id}`
 
-export function signIn(email: string, password: string): Session {
-  const u = users.find((x) => x.email.toLowerCase() === email.trim().toLowerCase())
-  // Same message for unknown email and wrong password, so it can't be used to find accounts.
+/**
+ * Sign in with the role name as username ("owner", "cashier"…) or the full demo email.
+ * Same answer for unknown user and wrong password, so it can't be used to find accounts.
+ */
+export function signIn(login: string, password: string): User {
+  const key = login.trim().toLowerCase()
+  const u = users.find((x) => x.email.toLowerCase() === key || x.email.split('@')[0] === key)
   if (!u || password !== DEMO_PASSWORD) throw new ValidationError('badCredentials')
   if (!u.active) throw new ValidationError('inactive')
-  return { token: tokenFor(u), user: u }
+  return u
 }
 
-/** The user behind a request's token, or null when signed out / deactivated. */
-export function userFromToken(header: string | null): User | null {
-  const id = header?.match(/^Bearer demo\.(\w+)$/)?.[1]
-  const u = users.find((x) => x.id === id)
+// ── demo session (mirrors the backend's cookie session) ──
+const SESSION_KEY = 'accounting.demoSession'
+let current: string | null = null
+try {
+  current = localStorage.getItem(SESSION_KEY)
+} catch {
+  /* no storage (tests) — the session lasts for this visit */
+}
+
+export function setDemoSession(id: string | null) {
+  current = id
+  try {
+    if (id) localStorage.setItem(SESSION_KEY, id)
+    else localStorage.removeItem(SESSION_KEY)
+  } catch {
+    /* storage blocked */
+  }
+}
+
+/** The signed-in user, or null when signed out or switched off. */
+export function currentUser(): User | null {
+  const u = users.find((x) => x.id === current)
   return u && u.active ? u : null
 }
+
+/** What the real backend's /auth/login and /auth/me return. */
+export const authShape = (u: User) => ({
+  ok: true,
+  username: u.email.split('@')[0],
+  role: u.role,
+  name: u.name,
+})
 
 // ── users (Owner only) ─────────────────────────────────
 const assertOwner = (by: Role) => {

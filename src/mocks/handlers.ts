@@ -14,7 +14,16 @@ import type {
   TransferInput,
   User,
 } from '@/types/domain'
-import { inviteUser, signIn, updateSettings, updateUser, userFromToken, users } from './admin'
+import {
+  authShape,
+  currentUser,
+  inviteUser,
+  setDemoSession,
+  signIn,
+  updateSettings,
+  updateUser,
+  users,
+} from './admin'
 import { reconciliation, resolveLine, syncCounts, transactions, transfer } from './banking'
 import { createInvoice, customerSummaries, items } from './catalog'
 import { accounts, dashboard, invoices, recordPayment, settings, ValidationError } from './db'
@@ -63,7 +72,7 @@ const route =
   async (c: Ctx) => {
     await delay(ms)
     try {
-      const user = userFromToken(c.request.headers.get('Authorization'))
+      const user = currentUser()
       if (!user) throw new ValidationError('signedOut')
       if (perm && !can(user.role, perm)) throw new ValidationError('forbidden')
       return HttpResponse.json((await fn({ ...c, user, role: user.role })) as object, { status })
@@ -76,19 +85,30 @@ const body = async <T>(r: Request) => (await r.json()) as T
 const id = (c: Ctx, k = 'id') => String(c.params[k])
 
 const authHandlers = [
-  http.post('*/api/auth/sign-in', async ({ request }) => {
+  // Same paths and answers as the real backend (backend/src/routes/auth.ts).
+  http.post('*/api/auth/login', async ({ request }) => {
     await delay(500)
     try {
-      const b = await body<{ email: string; password: string }>(request)
-      return HttpResponse.json(signIn(String(b.email ?? ''), String(b.password ?? '')))
+      const b = await body<{ username?: string; password?: string }>(request)
+      const u = signIn(String(b.username ?? ''), String(b.password ?? ''))
+      setDemoSession(u.id)
+      return HttpResponse.json(authShape(u))
     } catch (e) {
-      return fail(e)
+      const code = e instanceof ValidationError ? e.code : 'unknown'
+      return HttpResponse.json({ code, error: 'Invalid username or password' }, { status: 401 })
     }
   }),
-  http.get(
-    '*/api/auth/me',
-    route(null, 100, ({ user }) => user),
-  ),
+  http.get('*/api/auth/me', async () => {
+    await delay(100)
+    const u = currentUser()
+    return u
+      ? HttpResponse.json(authShape(u))
+      : HttpResponse.json({ code: 'signedOut', error: 'Not authenticated' }, { status: 401 })
+  }),
+  http.post('*/api/auth/logout', () => {
+    setDemoSession(null)
+    return HttpResponse.json({ ok: true })
+  }),
   // Company name & provider names are shown everywhere, so every signed-in user may read them.
   http.get(
     '*/api/settings',

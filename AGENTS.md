@@ -16,7 +16,9 @@ in the browser (MSW) — there is no backend yet. English + Arabic (right-to-lef
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm run check      # typecheck + lint + format check + tests — must pass before every commit
+npm run check      # typecheck + lint + format check + frontend tests — must pass before every commit
+npm run check:backend   # backend typecheck + tests (11 ledger tests need PostgreSQL on :5433)
+VITE_USE_MOCKS=false npm run dev   # use the real backend (backend/, port 8000) instead of demo data
 npm run build
 ```
 
@@ -39,8 +41,10 @@ src/types/domain.ts  Data contract between screens and the API
 
 ## Rules that must not be broken
 
-1. **Colours:** only misty blue `#DCE6F2` and slate blue `#4A5D78` (+ neutral greys). Warning red `#B42318`
-   is used **only** for overdue and errors. Never put text in the middle of the `.fog` gradient.
+1. **Colours — two only, every time** (client rule): each theme uses exactly two colours, every shade derived
+   from them — Blue fog: misty blue `#DCE6F2` + slate blue `#4A5D78`; Ledger: paper `#FBF7F0` + ink navy `#1F2A3D`.
+   No third colour (no success green, no amber). The one approved exception: warning red `#B42318`, **only** for
+   overdue and errors. Never put text in the middle of the `.fog` gradient.
 2. **Two languages:** every UI string goes in `src/lib/messages-*.ts` in English AND Arabic (TypeScript enforces it).
    Use logical CSS (`ms/me`, `ps/pe`, `start/end`, `text-start/end`) — never left/right.
    Wrap mixed-language cells in `<bdi>`; money via `<Amount>` (always left-to-right).
@@ -69,8 +73,12 @@ Phases 1–4 approved. Screens are built in batches:
   Settings (company, provider names, approval limit, reminder day, users), Reports (P&L, balance sheet,
   who owes what, sales by customer; print + CSV export)
 
-Demo accounts: `owner|accountant|cashier|sales@demo.test`, password `demo1234` (see README).
-Next phase: 7 — Launch (connect the real backend, QA, handover).
+Demo accounts (demo mode only): usernames `owner|accountant|cashier|sales`, password `demo1234` (see README).
+The mock API speaks the same auth as the backend: `/auth/login`, `/auth/me`, `/auth/logout` with a cookie session.
+Backend: `backend/` (Express + PostgreSQL), deployment in `DEPLOYMENT.md` / `render.yaml`. Never add default passwords;
+production refuses to start without `SESSION_SECRET` (32+ chars) and `CORS_ORIGIN`.
+Themes: Ledger (default, paper + ink navy) and Blue fog — both two colours + warning red for overdue/errors only.
+Next phase: 7 — Launch (QA against the real backend, deploy, handover).
 
 Placeholders still waiting on the client: company name, logo, mobile-money provider names.
 Demo data resets on page reload (in-memory mock).

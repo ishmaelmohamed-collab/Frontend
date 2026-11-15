@@ -1,4 +1,16 @@
-import { ChevronRight, FileText, Home, Languages, LogOut, Menu, PanelLeftClose, PanelLeftOpen, Plus, Users, X } from 'lucide-react'
+import {
+  ChevronRight,
+  FileText,
+  Home,
+  Languages,
+  LogOut,
+  Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Plus,
+  Users,
+  X,
+} from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router'
 import { IconButton } from '@/components/ui/Button'
@@ -15,7 +27,7 @@ function Logo({ collapsed }: { collapsed?: boolean }) {
     <Link to="/" className={cn('flex items-center gap-2.5', collapsed && 'justify-center')}>
       <span
         aria-hidden
-        className="bg-slate text-panel font-serif grid size-9 shrink-0 place-items-center rounded-lg text-lg font-bold"
+        className="bg-slate text-panel grid size-9 shrink-0 place-items-center rounded-lg font-serif text-lg font-bold"
       >
         L
       </span>
@@ -40,7 +52,10 @@ function UserBox({ collapsed }: { collapsed?: boolean }) {
   if (collapsed) {
     return (
       <div className="border-line mt-auto flex justify-center border-t px-2 pt-4">
-        <span aria-hidden className="bg-slate grid size-9 place-items-center rounded-full text-xs font-bold text-white">
+        <span
+          aria-hidden
+          className="bg-slate grid size-9 place-items-center rounded-full text-xs font-bold text-white"
+        >
           {initials(user.name)}
         </span>
       </div>
@@ -98,22 +113,24 @@ function SideNav({ onNavigate, collapsed }: { onNavigate?: () => void; collapsed
   if (collapsed) {
     return (
       <nav aria-label="Main" className="flex flex-col items-center gap-1">
-        {groups.flatMap((g) => g.items).map(({ to, key, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            title={t(key)}
-            className={({ isActive }) =>
-              cn(
-                'grid size-10 place-items-center rounded-lg transition-colors',
-                isActive ? 'bg-mist text-slate' : 'text-ink-muted hover:bg-mist-soft hover:text-ink',
-              )
-            }
-          >
-            <Icon aria-hidden className="size-5" />
-          </NavLink>
-        ))}
+        {groups
+          .flatMap((g) => g.items)
+          .map(({ to, key, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={to === '/'}
+              title={t(key)}
+              className={({ isActive }) =>
+                cn(
+                  'grid size-10 place-items-center rounded-lg transition-colors',
+                  isActive ? 'bg-mist text-slate' : 'text-ink-muted hover:bg-mist-soft hover:text-ink',
+                )
+              }
+            >
+              <Icon aria-hidden className="size-5" />
+            </NavLink>
+          ))}
       </nav>
     )
   }
@@ -133,7 +150,9 @@ function SideNav({ onNavigate, collapsed }: { onNavigate?: () => void; collapsed
                 aria-expanded={isOpen}
                 className="text-ink-subtle hover:bg-mist-soft hover:text-ink flex w-full items-center gap-1 rounded-lg px-2 py-2 text-[11px] font-bold tracking-wider uppercase transition-colors"
               >
-                <ChevronRight className={cn('size-3.5 shrink-0 transition-transform', isOpen && 'rotate-90')} />
+                <ChevronRight
+                  className={cn('size-3.5 shrink-0 transition-transform', isOpen && 'rotate-90')}
+                />
                 {t(g.group)}
               </button>
             )}
@@ -193,7 +212,12 @@ export function AppShell() {
   ]
 
   return (
-    <div className={cn('bg-canvas min-h-dvh lg:grid', collapsed ? 'lg:grid-cols-[64px_1fr]' : 'lg:grid-cols-[256px_1fr]')}>
+    <div
+      className={cn(
+        'bg-canvas min-h-dvh lg:grid',
+        collapsed ? 'lg:grid-cols-[64px_1fr]' : 'lg:grid-cols-[256px_1fr]',
+      )}
+    >
       <a
         href="#main"
         className="bg-slate sr-only z-50 rounded-md px-4 py-2 text-white focus:not-sr-only focus:fixed focus:start-2 focus:top-2"
@@ -247,9 +271,13 @@ export function AppShell() {
             type="button"
             onClick={() => setCollapsed((c) => !c)}
             aria-label={collapsed ? t('shell.openMenu') : t('shell.closeMenu')}
-            className="border-line-input hover:bg-mist-soft hidden size-10 place-items-center rounded-control border lg:inline-flex"
+            className="border-line-input hover:bg-mist-soft rounded-control hidden size-10 place-items-center border lg:inline-flex"
           >
-            {collapsed ? <PanelLeftOpen aria-hidden className="size-4" /> : <PanelLeftClose aria-hidden className="size-4" />}
+            {collapsed ? (
+              <PanelLeftOpen aria-hidden className="size-4" />
+            ) : (
+              <PanelLeftClose aria-hidden className="size-4" />
+            )}
           </button>
           <div className="lg:hidden">
             <Logo />

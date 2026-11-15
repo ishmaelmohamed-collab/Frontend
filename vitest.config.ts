@@ -7,6 +7,8 @@ export default mergeConfig(
     test: {
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
+      // Frontend tests only; the backend has its own: npm run test:backend
+      include: ['src/**/*.test.{ts,tsx}'],
     },
   }),
 )

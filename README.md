@@ -19,16 +19,23 @@ Open http://localhost:5173 and sign in with a demo account. Use **العربية
 
 ### Demo accounts
 
-Test values for the demo only — the mock API accepts them; the real backend will issue real accounts.
+Demo mode (the default, no backend needed) runs on in-browser demo data. These test accounts work only there —
+the sign-in page shows them only in demo mode.
 
-| Role       | Email                  | Password   |
-| ---------- | ---------------------- | ---------- |
-| Owner      | `owner@demo.test`      | `demo1234` |
-| Accountant | `accountant@demo.test` | `demo1234` |
-| Cashier    | `cashier@demo.test`    | `demo1234` |
-| Sales      | `sales@demo.test`      | `demo1234` |
+| Role       | Username     | Password   |
+| ---------- | ------------ | ---------- |
+| Owner      | `owner`      | `demo1234` |
+| Accountant | `accountant` | `demo1234` |
+| Cashier    | `cashier`    | `demo1234` |
+| Sales      | `sales`      | `demo1234` |
 
 Demo data resets when the page reloads (you stay signed in).
+
+### With the real backend
+
+The Node + PostgreSQL backend is in `backend/`. Run it (see [DEPLOYMENT.md](DEPLOYMENT.md)), then start the
+frontend with `VITE_USE_MOCKS=false npm run dev` — requests to `/api` go to `http://localhost:8000`. There is no
+built-in password: the first Owner account comes from `ADMIN_PASSWORD` (or a random one printed once in the log).
 
 ## Commands
 

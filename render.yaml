@@ -1,5 +1,6 @@
 # Render.com blueprint — free tier: PostgreSQL + backend API + frontend static site.
 # Push this repo to GitHub, then in Render: "New > Blueprint" and pick this file.
+# Render asks for ADMIN_PASSWORD (sync: false) — choose a strong one (10+ characters).
 services:
   - type: web
     name: accounting-backend
@@ -13,6 +14,15 @@ services:
         fromDatabase:
           name: accounting-db
           property: connectionString
+      # First Owner account (created once, when there are no users yet).
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false
+      # Only the frontend below may call the API with the sign-in cookie.
+      # If you rename the frontend service, change this address to match.
+      - key: CORS_ORIGIN
+        value: https://accounting-frontend.onrender.com
 
   - type: web
     name: accounting-frontend
@@ -21,10 +31,17 @@ services:
     rootDir: .
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
+    # Every address (e.g. /invoices/INV-3107) loads the app; the app shows the right screen.
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
     envVars:
+      # Real backend, not the in-browser demo data.
+      - key: VITE_USE_MOCKS
+        value: 'false'
       - key: VITE_API_URL
-        # After the backend deploys, replace this with its real URL, e.g.
-        # https://accounting-backend.onrender.com/api
+        # If you rename the backend service, change this address to match.
         value: https://accounting-backend.onrender.com/api
 
 databases:

@@ -1,4 +1,5 @@
 # One-command full stack: PostgreSQL + backend API.
+#   Create a .env file next to this one (see backend/.env.example), then:
 #   docker compose up --build
 # Backend is then at http://localhost:8000/api
 services:
@@ -6,12 +7,12 @@ services:
     image: postgres:17-alpine
     environment:
       POSTGRES_USER: accounting_app
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       POSTGRES_DB: accounting
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U accounting_app -d accounting"]
+      test: ['CMD-SHELL', 'pg_isready -U accounting_app -d accounting']
       interval: 5s
       timeout: 5s
       retries: 12
@@ -20,10 +21,15 @@ services:
     build: ./backend
     environment:
       PORT: 8000
-      SESSION_SECRET: ${SESSION_SECRET:-change-me}
-      DATABASE_URL: postgres://accounting_app:${DB_PASSWORD:-change-me}@db:5432/accounting
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET in .env (32+ random characters)}
+      DATABASE_URL: postgres://accounting_app:${DB_PASSWORD}@db:5432/accounting
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      CORS_ORIGIN: ${CORS_ORIGIN:?Set CORS_ORIGIN to the frontend address}
+      # Plain http on your own machine/server: set to 'lax'; behind HTTPS on two domains: 'none'.
+      COOKIE_SAMESITE: ${COOKIE_SAMESITE:-lax}
     ports:
-      - "8000:8000"
+      - '8000:8000'
     depends_on:
       db:
         condition: service_healthy

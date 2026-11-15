@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '@/lib/api'
-import { toUser } from '@/lib/auth-map'
+import { toUser, type AuthResponse } from '@/lib/auth-map'
 import type { Report, ReportKind, Role, Session, Settings, User } from '@/types/domain'
 
 export const useSettings = (enabled = true) =>
@@ -24,8 +24,8 @@ export const useReport = (kind: ReportKind, from: string, to: string) =>
 export function useSignIn() {
   return useMutation({
     mutationFn: async (input: { username: string; password: string }) => {
-      const { data } = await api.post('/auth/login', input)
-      return { token: 'cookie', user: toUser(data.username, data.role) } as Session
+      const { data } = await api.post<AuthResponse>('/auth/login', input)
+      return { token: 'cookie', user: toUser(data) } as Session
     },
   })
 }

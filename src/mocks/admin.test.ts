@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { applyBrand } from '@/lib/i18n-context'
 import { can, PERMISSIONS } from '@/lib/permissions'
-import { DEMO_PASSWORD, inviteUser, signIn, updateSettings, updateUser, userFromToken, users } from './admin'
+import {
+  authShape,
+  currentUser,
+  DEMO_PASSWORD,
+  inviteUser,
+  setDemoSession,
+  signIn,
+  updateSettings,
+  updateUser,
+  users,
+} from './admin'
 import { createInvoice } from './catalog'
 import { customers, settings, toCents, ValidationError } from './db'
 import { bills } from './purchases'
@@ -28,21 +38,27 @@ describe('roles', () => {
 })
 
 describe('sign-in', () => {
-  it('signs in with the demo password and refuses anything else with one message', () => {
-    const s = signIn('Owner@Demo.test', DEMO_PASSWORD)
-    expect(s.user.role).toBe('owner')
-    expect(userFromToken(`Bearer ${s.token}`)?.id).toBe(s.user.id)
-    expect(() => signIn('owner@demo.test', 'wrong')).toThrow('badCredentials')
-    expect(() => signIn('nobody@demo.test', DEMO_PASSWORD)).toThrow('badCredentials')
+  it('signs in by username or email with the demo password, and refuses anything else with one message', () => {
+    expect(signIn('Owner@Demo.test', DEMO_PASSWORD).role).toBe('owner')
+    const u = signIn(' cashier ', DEMO_PASSWORD)
+    expect(u.role).toBe('cashier')
+    setDemoSession(u.id)
+    expect(currentUser()?.id).toBe(u.id)
+    expect(authShape(u)).toMatchObject({ username: 'cashier', role: 'cashier' })
+    setDemoSession(null)
+    expect(currentUser()).toBeNull()
+    expect(() => signIn('owner', 'wrong')).toThrow('badCredentials')
+    expect(() => signIn('nobody', DEMO_PASSWORD)).toThrow('badCredentials')
   })
 
   it('a switched-off user is signed out on the next request and cannot sign in', () => {
     const sales = users.find((u) => u.role === 'sales')!
-    const { token } = signIn(sales.email, DEMO_PASSWORD)
+    setDemoSession(signIn('sales', DEMO_PASSWORD).id)
     updateUser(sales.id, { active: false }, 'owner')
-    expect(userFromToken(`Bearer ${token}`)).toBeNull()
+    expect(currentUser()).toBeNull()
     expect(() => signIn(sales.email, DEMO_PASSWORD)).toThrow('inactive')
     updateUser(sales.id, { active: true }, 'owner')
+    setDemoSession(null)
   })
 
   it('there is always at least one active Owner, and only the Owner manages users', () => {
