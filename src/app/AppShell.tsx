@@ -7,6 +7,7 @@ import { cn } from '@/lib/cn'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import { useSession } from '@/lib/session-context'
 import { NAV } from './navigation'
+import { ThemeSwitcher } from './ThemeSwitcher'
 
 function Logo() {
   const { t } = useLocale()
@@ -189,6 +190,7 @@ export function AppShell() {
             <span className="bg-mist text-slate hidden rounded-full px-3 py-1 text-xs font-bold sm:inline">
               {t('shell.demo')}
             </span>
+            <ThemeSwitcher />
             <button
               type="button"
               lang={locale === 'en' ? 'ar' : 'en'}
