@@ -1,14 +1,14 @@
-import { query } from '../db';
-import { money } from '../money';
+import { query } from '../db'
+import { money } from '../money'
 
 function mapMethod(m: string): string {
-  if (m === 'bank') return 'bank';
-  if (m === 'mobile_money') return 'mobile';
-  return 'credit';
+  if (m === 'bank') return 'bank'
+  if (m === 'mobile_money') return 'mobile'
+  return 'credit'
 }
 
 export async function listBills(): Promise<any[]> {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10)
   const r = await query(
     `SELECT i.id, i.invoice_number, i.party_id, p.name AS vendor_name,
             i.issue_date::text AS bill_date, i.due_date::text AS due_date,
@@ -20,16 +20,16 @@ export async function listBills(): Promise<any[]> {
      WHERE i.invoice_type = 'purchase' AND i.status <> 'void'
      GROUP BY i.id, p.name
      ORDER BY i.issue_date DESC, i.id DESC`,
-  );
+  )
   return r.rows.map((i) => {
-    const total = money(i.total);
-    const paid = money(i.paid);
-    const due = total.minus(paid);
-    let status: string;
-    if (i.status === 'paid') status = 'paid';
-    else if (i.due_date < today) status = 'overdue';
-    else if (paid.greaterThan(0)) status = 'partial';
-    else status = 'unpaid';
+    const total = money(i.total)
+    const paid = money(i.paid)
+    const due = total.minus(paid)
+    let status: string
+    if (i.status === 'paid') status = 'paid'
+    else if (i.due_date < today) status = 'overdue'
+    else if (paid.greaterThan(0)) status = 'partial'
+    else status = 'unpaid'
     return {
       id: String(i.id),
       vendorId: String(i.party_id),
@@ -45,8 +45,8 @@ export async function listBills(): Promise<any[]> {
       needsApproval: false,
       approved: true,
       status,
-    };
-  });
+    }
+  })
 }
 
 export async function listOrders(): Promise<any[]> {
@@ -58,19 +58,19 @@ export async function listOrders(): Promise<any[]> {
      JOIN parties p ON p.id = o.party_id
      WHERE o.order_type = 'purchase' AND o.status <> 'cancelled'
      ORDER BY o.order_date DESC, o.id DESC`,
-  );
-  const lines = await query(`SELECT order_id, description, quantity, unit_price FROM order_lines`);
-  const byOrder = new Map<number, any[]>();
+  )
+  const lines = await query(`SELECT order_id, description, quantity, unit_price FROM order_lines`)
+  const byOrder = new Map<number, any[]>()
   for (const l of lines.rows) {
-    const arr = byOrder.get(Number(l.order_id)) ?? [];
+    const arr = byOrder.get(Number(l.order_id)) ?? []
     arr.push({
       itemId: null,
       description: l.description,
       ordered: Number(l.quantity),
       received: 0,
       unitCost: money(l.unit_price).toFixed(2),
-    });
-    byOrder.set(Number(l.order_id), arr);
+    })
+    byOrder.set(Number(l.order_id), arr)
   }
   return orders.rows.map((o) => ({
     id: String(o.id),
@@ -81,7 +81,7 @@ export async function listOrders(): Promise<any[]> {
     lines: byOrder.get(Number(o.id)) ?? [],
     total: money(o.total).toFixed(2),
     status: o.status === 'billed' ? 'received' : 'open',
-  }));
+  }))
 }
 
 export async function listPayments(): Promise<any[]> {
@@ -93,7 +93,7 @@ export async function listPayments(): Promise<any[]> {
      FROM payments pa
      WHERE pa.direction = 'incoming'
      ORDER BY pa.payment_date DESC, pa.id DESC`,
-  );
+  )
   return r.rows.map((pa) => ({
     id: String(pa.id),
     date: pa.date,
@@ -106,5 +106,5 @@ export async function listPayments(): Promise<any[]> {
     invoiceId: pa.invoice_id ?? '',
     invoiceNumber: pa.invoice_number ?? '',
     customerName: pa.customer_name ?? '',
-  }));
+  }))
 }

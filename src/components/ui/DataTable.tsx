@@ -44,7 +44,7 @@ export function DataTable<T extends RowData>({ caption, columns, data, onOpen, e
                         sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
                       }
                       className={cn(
-                        'border-line text-ink-subtle border-b px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider first:ps-5 last:pe-5',
+                        'border-line text-ink-subtle border-b px-4 py-2.5 text-[11px] font-bold tracking-wider uppercase first:ps-5 last:pe-5',
                         numeric ? 'text-end' : 'text-start',
                       )}
                     >

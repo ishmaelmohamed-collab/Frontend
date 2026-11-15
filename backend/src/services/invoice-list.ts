@@ -1,17 +1,17 @@
-import { query } from '../db';
-import { money } from '../money';
+import { query } from '../db'
+import { money } from '../money'
 
 /** Map a backend invoice row to the frontend's Invoice shape. */
 function mapInvoice(i: any, today: string): any {
-  const total = money(i.total);
-  const paid = money(i.paid);
-  const due = total.minus(paid);
-  let status: string;
-  if (i.status === 'paid') status = 'paid';
-  else if (i.status === 'void') status = 'void';
-  else if (i.due_date < today) status = 'overdue';
-  else if (paid.greaterThan(0)) status = 'partial';
-  else status = 'sent';
+  const total = money(i.total)
+  const paid = money(i.paid)
+  const due = total.minus(paid)
+  let status: string
+  if (i.status === 'paid') status = 'paid'
+  else if (i.status === 'void') status = 'void'
+  else if (i.due_date < today) status = 'overdue'
+  else if (paid.greaterThan(0)) status = 'partial'
+  else status = 'sent'
   return {
     id: String(i.id),
     number: i.invoice_number,
@@ -26,11 +26,11 @@ function mapInvoice(i: any, today: string): any {
     status,
     payments: [],
     activity: [],
-  };
+  }
 }
 
 async function listInvoices(invoiceType: 'sale' | 'purchase'): Promise<any[]> {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10)
   const inv = await query(
     `SELECT i.id, i.invoice_number, i.party_id, p.name AS customer_name,
             i.issue_date::text AS issue_date, i.due_date::text AS due_date,
@@ -43,22 +43,22 @@ async function listInvoices(invoiceType: 'sale' | 'purchase'): Promise<any[]> {
      GROUP BY i.id, p.name
      ORDER BY i.issue_date DESC, i.id DESC`,
     [invoiceType],
-  );
-  return inv.rows.map((i) => mapInvoice(i, today));
+  )
+  return inv.rows.map((i) => mapInvoice(i, today))
 }
 
-export const listSaleInvoices = () => listInvoices('sale');
-export const listPurchaseInvoices = () => listInvoices('purchase');
+export const listSaleInvoices = () => listInvoices('sale')
+export const listPurchaseInvoices = () => listInvoices('purchase')
 
 export function mapPaymentMethod(m: string): string {
-  if (m === 'bank') return 'bank';
-  if (m === 'mobile') return 'mobile_money';
-  return 'other';
+  if (m === 'bank') return 'bank'
+  if (m === 'mobile') return 'mobile_money'
+  return 'other'
 }
 
 /** One invoice with its lines + payments, in the frontend's Invoice shape. */
 export async function getInvoiceDetail(id: string): Promise<any | null> {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10)
   const r = await query(
     `SELECT i.id, i.invoice_number, i.party_id, p.name AS customer_name,
             i.issue_date::text AS issue_date, i.due_date::text AS due_date,
@@ -67,30 +67,30 @@ export async function getInvoiceDetail(id: string): Promise<any | null> {
      FROM invoices i JOIN parties p ON p.id = i.party_id
      WHERE i.id = $1`,
     [id],
-  );
-  const inv = r.rows[0];
-  if (!inv) return null;
+  )
+  const inv = r.rows[0]
+  if (!inv) return null
 
   const lines = await query(
     `SELECT description, quantity, unit_price, amount FROM invoice_lines WHERE invoice_id = $1 ORDER BY id`,
     [id],
-  );
+  )
   const payments = await query(
     `SELECT pa.id, pa.payment_date::text AS date, pa.method, pa.reference, ip.amount
      FROM invoice_payments ip JOIN payments pa ON pa.id = ip.payment_id
      WHERE ip.invoice_id = $1 ORDER BY pa.payment_date, pa.id`,
     [id],
-  );
+  )
 
-  const total = money(inv.total);
-  const paid = money(inv.paid);
-  const due = total.minus(paid);
-  let status: string;
-  if (inv.status === 'paid') status = 'paid';
-  else if (inv.status === 'void') status = 'void';
-  else if (inv.due_date < today) status = 'overdue';
-  else if (paid.greaterThan(0)) status = 'partial';
-  else status = 'sent';
+  const total = money(inv.total)
+  const paid = money(inv.paid)
+  const due = total.minus(paid)
+  let status: string
+  if (inv.status === 'paid') status = 'paid'
+  else if (inv.status === 'void') status = 'void'
+  else if (inv.due_date < today) status = 'overdue'
+  else if (paid.greaterThan(0)) status = 'partial'
+  else status = 'sent'
 
   return {
     id: String(inv.id),
@@ -121,5 +121,5 @@ export async function getInvoiceDetail(id: string): Promise<any | null> {
       matched: true,
     })),
     activity: [],
-  };
+  }
 }

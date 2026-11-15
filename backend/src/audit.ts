@@ -1,4 +1,4 @@
-import { query } from './db';
+import { query } from './db'
 
 export async function logAudit(
   userId: number | undefined,
@@ -11,5 +11,5 @@ export async function logAudit(
   await query(
     'INSERT INTO audit_log (user_id, username, action, entity_type, entity_id, details) VALUES ($1,$2,$3,$4,$5,$6)',
     [userId ?? null, username ?? null, action, entityType, entityId ?? null, details ?? null],
-  );
+  )
 }
