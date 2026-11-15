@@ -1,16 +1,16 @@
 import { Palette } from 'lucide-react'
 import { useEffect, useState } from 'react'
 
-const THEMES = ['fog', 'ledger', 'notion'] as const
+const THEMES = ['ledger', 'notion', 'fog'] as const
 const LABELS: Record<(typeof THEMES)[number], string> = {
-  fog: 'Blue Fog',
   ledger: 'Ledger',
   notion: 'Notion',
+  fog: 'Blue Fog',
 }
 
-/** Cycles Blue Fog → Ledger → Notion, remembers the choice. */
+/** Cycles Ledger → Notion → Blue Fog, remembers the choice. */
 export function ThemeSwitcher() {
-  const [theme, setTheme] = useState<string>(() => localStorage.getItem('theme') || 'fog')
+  const [theme, setTheme] = useState<string>(() => localStorage.getItem('theme') || 'ledger')
 
   useEffect(() => {
     if (theme === 'fog') document.documentElement.removeAttribute('data-theme')
