@@ -9,7 +9,7 @@ export type ButtonSize = 'sm' | 'md'
 
 export const buttonVariants: Record<ButtonVariant, string> = {
   primary:
-    'bg-slate text-white hover:bg-slate-hover active:bg-slate-pressed disabled:bg-slate-disabled disabled:text-white',
+    'bg-slate text-white shadow-card hover:bg-slate-hover active:bg-slate-pressed disabled:bg-slate-disabled disabled:text-white',
   secondary:
     'border border-line-input bg-panel text-ink hover:bg-mist-soft active:bg-mist disabled:border-line disabled:bg-panel disabled:text-ink-subtle',
   quiet: 'text-slate hover:bg-mist-soft active:bg-mist disabled:bg-transparent disabled:text-ink-subtle',

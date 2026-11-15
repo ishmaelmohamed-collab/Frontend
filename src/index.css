@@ -38,6 +38,12 @@
   --color-alert: #b42318;
   --color-alert-soft: #fef3f2;
 
+  /* Success green + attention amber (paid, partial, positive figures) */
+  --color-success: #1e6b4f;
+  --color-success-soft: #e6f2ec;
+  --color-warning: #b7791f;
+  --color-warning-soft: #f8f0e0;
+
   /* Neutrals */
   --color-canvas: #f6f8fb;
   --color-panel: #ffffff;
@@ -169,6 +175,10 @@
   --color-slate-disabled: #a8b0c0;
   --color-alert: #c0392b;
   --color-alert-soft: #fbf0ec;
+  --color-success: #1e6b4f;
+  --color-success-soft: #e8f1ec;
+  --color-warning: #b7791f;
+  --color-warning-soft: #f6ede0;
   --color-canvas: #fbf7f0;
   --color-panel: #fffdf8;
   --color-ink: #1f2a3d;
@@ -197,6 +207,10 @@
   --color-slate-disabled: #c4c3c0;
   --color-alert: #eb5757;
   --color-alert-soft: #fdf0f0;
+  --color-success: #0f7b6c;
+  --color-success-soft: #e6f2f0;
+  --color-warning: #d4a72c;
+  --color-warning-soft: #faf3e0;
   --color-canvas: #fafaf9;
   --color-panel: #ffffff;
   --color-ink: #37352f;
