@@ -4,13 +4,7 @@ import { cn } from '@/lib/cn'
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLElement>) {
   return (
-    <section
-      className={cn(
-        'bg-panel border-line rounded-card shadow-card border transition-shadow duration-200',
-        className,
-      )}
-      {...props}
-    />
+    <section className={cn('bg-panel border-line rounded-card shadow-card border', className)} {...props} />
   )
 }
 
@@ -24,10 +18,10 @@ export function CardHeader({
   action?: ReactNode
 }) {
   return (
-    <header className="flex flex-wrap items-start justify-between gap-2 px-5 pt-5">
+    <header className="border-line flex flex-wrap items-start justify-between gap-2 border-b px-4 py-3">
       <div>
-        <h2 className="font-serif text-lg font-semibold tracking-tight">{title}</h2>
-        {description && <p className="text-ink-muted mt-0.5 text-sm">{description}</p>}
+        <h2 className="text-ink-muted text-[13px] font-bold tracking-wide uppercase">{title}</h2>
+        {description && <p className="text-ink-subtle mt-0.5 text-xs normal-case">{description}</p>}
       </div>
       {action}
     </header>
@@ -44,9 +38,9 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+    <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 className="font-serif text-2xl font-semibold tracking-tight sm:text-3xl">{title}</h1>
+        <h1 className="text-xl font-bold tracking-tight sm:text-2xl">{title}</h1>
         {description && <div className="text-ink-muted mt-1 text-sm">{description}</div>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
@@ -55,8 +49,9 @@ export function PageHeader({
 }
 
 /**
- * Headline figure. `featured` = soft fog background (the one figure that matters most);
- * `overdue` = warning red outline, icon and figure.
+ * Headline figure, in the style of a plain "smart button" stat: a quiet bordered
+ * panel with the number doing all the work. `featured` adds a thin accent-coloured
+ * top edge; `overdue` = warning red, icon and figure.
  */
 export function StatCard({
   label,
@@ -69,31 +64,27 @@ export function StatCard({
   footnote?: ReactNode
   variant?: 'default' | 'featured' | 'overdue'
 }) {
-  const dark = variant === 'featured'
   return (
     <section
       className={cn(
-        'rounded-card shadow-card p-5',
-        variant === 'featured' && 'bg-slate text-white',
-        variant === 'default' && 'bg-panel border-line border',
-        variant === 'overdue' && 'bg-panel border-alert border-2',
+        'rounded-card border-line bg-panel border border-t-[3px] p-4',
+        variant === 'featured' && 'border-t-slate',
+        variant === 'overdue' && 'border-t-alert',
       )}
     >
       <h2
         className={cn(
-          'flex items-center gap-1.5 text-sm',
-          variant === 'overdue' ? 'text-alert font-bold' : dark ? 'text-white/70' : 'text-ink-muted',
+          'text-ink-muted flex items-center gap-1.5 text-xs font-semibold',
+          variant === 'overdue' && 'text-alert',
         )}
       >
-        {variant === 'overdue' && <AlertTriangle aria-hidden className="size-4" />}
+        {variant === 'overdue' && <AlertTriangle aria-hidden className="size-3.5" />}
         {label}
       </h2>
-      <p className={cn('mt-1 text-3xl font-semibold tracking-tight', variant === 'overdue' && 'text-alert')}>
+      <p className={cn('mt-1 text-2xl font-bold tracking-tight', variant === 'overdue' && 'text-alert')}>
         {value}
       </p>
-      {footnote && (
-        <div className={cn('mt-1 text-sm', dark ? 'text-white/70' : 'text-ink-muted')}>{footnote}</div>
-      )}
+      {footnote && <div className="text-ink-muted mt-1 text-xs">{footnote}</div>}
     </section>
   )
 }

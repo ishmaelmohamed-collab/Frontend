@@ -45,7 +45,7 @@ export function Alert({
     >
       <s.Icon aria-hidden className={cn('mt-0.5 size-5 shrink-0', s.icon)} />
       <div className="min-w-0 flex-1 text-sm">
-        <p className={cn('font-bold', s.title)}>{title}</p>
+        <p className={cn('font-semibold', s.title)}>{title}</p>
         {children && <div className="text-ink-muted mt-0.5">{children}</div>}
       </div>
       {action && <div className="shrink-0">{action}</div>}

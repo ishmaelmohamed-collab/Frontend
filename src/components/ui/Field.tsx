@@ -15,13 +15,13 @@ interface FieldProps {
 }
 
 const control =
-  'w-full rounded-control border bg-panel px-3 text-ink placeholder:text-ink-subtle transition-shadow duration-150 ' +
+  'w-full rounded-control border bg-panel px-3 text-ink placeholder:text-ink-subtle transition-colors duration-100 ' +
   'text-base sm:text-sm ' +
-  'focus:outline-none focus:border-slate focus:ring-4 focus:ring-mist ' +
+  'focus:outline-none focus:border-slate focus:ring-2 focus:ring-mist ' +
   'disabled:cursor-not-allowed disabled:border-line disabled:bg-canvas disabled:text-ink-subtle'
 
 const border = (error?: string) =>
-  error ? 'border-2 border-alert focus:border-alert focus:ring-alert-soft' : 'border-line-input'
+  error ? 'border-alert focus:border-alert focus:ring-alert-soft' : 'border-line-input'
 
 function useIds(error?: string, hint?: string) {
   const id = useId()
@@ -219,14 +219,14 @@ export function Switch({
       <span
         aria-hidden
         className={cn(
-          'inline-flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition-colors duration-150',
+          'inline-flex h-6 w-10 shrink-0 items-center rounded-full p-0.5 transition-colors duration-100',
           checked ? 'bg-slate' : 'bg-line-input',
           disabled && 'opacity-50',
         )}
       >
         <span
           className={cn(
-            'size-5 rounded-full bg-white shadow-sm transition-transform duration-200',
+            'size-5 rounded-full bg-white shadow-sm transition-transform duration-150',
             checked && 'translate-x-4 rtl:-translate-x-4',
           )}
         />
@@ -263,7 +263,7 @@ export function Segmented<T extends string>({
               'rounded-control flex min-h-10 cursor-pointer items-center justify-center px-2 text-center text-sm transition-colors duration-150 pointer-coarse:min-h-11',
               'has-focus-visible:outline-slate has-focus-visible:outline-2 has-focus-visible:outline-offset-2',
               value === o.value
-                ? 'border-slate bg-mist text-slate border-2 font-bold'
+                ? 'border-slate bg-mist text-slate border font-semibold'
                 : 'border-line-input bg-panel hover:bg-mist-soft border',
             )}
           >

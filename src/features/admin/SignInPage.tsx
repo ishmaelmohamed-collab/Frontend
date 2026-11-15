@@ -1,15 +1,14 @@
-import { Eye, EyeOff, Languages, LogIn } from 'lucide-react'
+import { isAxiosError } from 'axios'
+import { Eye, EyeOff, LogIn } from 'lucide-react'
 import { useState, type FormEvent } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router'
 import { Button } from '@/components/ui/Button'
 import { Alert } from '@/components/ui/Feedback'
 import { TextField } from '@/components/ui/Field'
 import { Card } from '@/components/ui/Layout'
-import { isAxiosError } from 'axios'
 import { useLocale, type MessageKey } from '@/lib/i18n-context'
 import { ROLES } from '@/lib/permissions'
 import { useSession } from '@/lib/session-context'
-import { ThemeSwitcher } from '@/app/ThemeSwitcher'
 import { errorCode } from '../books/api'
 import { useSignIn } from './api'
 
@@ -61,33 +60,29 @@ export function SignInPage() {
         <span className="flex items-center gap-2.5">
           <span
             aria-hidden
-            className="bg-slate text-panel grid size-9 place-items-center rounded-lg font-serif text-lg font-bold"
+            className="border-line-input text-ink-muted rounded-control grid size-9 place-items-center border border-dashed text-[9px]"
           >
-            L
+            Logo
           </span>
-          <bdi className="font-serif text-base font-bold tracking-tight">{t('app.company')}</bdi>
+          <bdi className="text-base font-bold tracking-tight">{t('app.company')}</bdi>
         </span>
-        <div className="flex items-center gap-2">
-          <ThemeSwitcher />
-          <button
-            type="button"
-            lang={locale === 'en' ? 'ar' : 'en'}
-            aria-label={t('app.switchLabel')}
-            onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}
-            className="border-line-input hover:bg-mist-soft rounded-control inline-flex min-h-10 items-center gap-2 border px-3 text-sm font-semibold pointer-coarse:min-h-11"
-          >
-            <Languages aria-hidden className="size-4" />
-            {t('app.switch')}
-          </button>
-        </div>
+        <button
+          type="button"
+          lang={locale === 'en' ? 'ar' : 'en'}
+          aria-label={t('app.switchLabel')}
+          onClick={() => setLocale(locale === 'en' ? 'ar' : 'en')}
+          className="border-line-input hover:bg-mist-soft rounded-control min-h-10 border px-3 text-sm font-semibold"
+        >
+          {t('app.switch')}
+        </button>
       </header>
 
       <main className="flex flex-1 items-start justify-center px-4 pt-4 pb-12 sm:pt-12">
         <div className="flex w-full max-w-md flex-col gap-6">
           <Card className="overflow-hidden">
-            <div className="fog-soft border-line border-b px-6 py-5">
-              <h1 className="font-serif text-2xl font-semibold tracking-tight">{t('auth.title')}</h1>
-              <p className="text-ink-muted mt-1 text-sm">{t('auth.sub')}</p>
+            <div className="brand-gradient px-6 py-7 text-white">
+              <h1 className="text-xl font-bold tracking-tight">{t('auth.title')}</h1>
+              <p className="mt-1 text-sm text-white/75">{t('auth.sub')}</p>
             </div>
             <form noValidate onSubmit={submit} className="flex flex-col gap-4 p-6">
               {code === 'badCredentials' && <Alert tone="error" title={t('err.badCredentials')} />}
@@ -124,7 +119,7 @@ export function SignInPage() {
                   onClick={() => setShow((s) => !s)}
                   aria-label={show ? t('auth.hide') : t('auth.show')}
                   aria-pressed={show}
-                  className="text-ink-muted hover:text-ink absolute end-1 top-7 grid size-10 place-items-center rounded-md pointer-coarse:size-11"
+                  className="text-ink-muted hover:text-ink absolute end-1 top-7 grid size-10 place-items-center pointer-coarse:size-11"
                 >
                   {show ? <EyeOff aria-hidden className="size-4" /> : <Eye aria-hidden className="size-4" />}
                 </button>
@@ -160,7 +155,7 @@ export function SignInPage() {
                         setPassword(DEMO_PASSWORD)
                         setErrors({})
                       }}
-                      className="border-line-input hover:bg-mist-soft rounded-control flex min-h-11 w-full flex-col items-start px-3 py-2 text-start"
+                      className="border-line-input hover:bg-mist-soft rounded-control flex min-h-11 w-full flex-col items-start border px-3 py-2 text-start"
                     >
                       <span className="text-sm font-semibold">{t(`role.${a.role}` as MessageKey)}</span>
                       <bdi dir="ltr" className="text-ink-muted text-xs">

@@ -75,7 +75,7 @@ export function Drawer({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50">
-      <div aria-hidden className="absolute inset-0 bg-[#1c2430]/45" onClick={onClose} />
+      <div aria-hidden className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
         ref={ref}
         role="dialog"
@@ -116,7 +116,7 @@ export function Dialog({ open, onClose, title, description, children, footer }: 
   if (!open) return null
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">
-      <div aria-hidden className="absolute inset-0 bg-[#1c2430]/45" onClick={onClose} />
+      <div aria-hidden className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
         ref={ref}
         role="alertdialog"

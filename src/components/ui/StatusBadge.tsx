@@ -1,20 +1,20 @@
-import { AlertTriangle, Check, CircleDashed, FilePen, Send, X } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useLocale } from '@/lib/i18n-context'
 
 export type DocumentStatus = 'draft' | 'sent' | 'partial' | 'paid' | 'overdue' | 'void'
 
 /**
- * Statuses use the two fog colours; only "Overdue" uses the warning red (client decision B).
- * Each status also has its own icon and word — never colour alone.
+ * A soft pill: a small coloured dot plus the word. Statuses use the two calm colours;
+ * only "Overdue" uses the warning red (client decision B). The word is what tells
+ * status apart, never the colour alone.
  */
-const styles: Record<DocumentStatus, { cls: string; Icon: typeof Check }> = {
-  draft: { cls: 'border border-line text-ink-muted bg-panel', Icon: FilePen },
-  sent: { cls: 'bg-mist-soft text-slate', Icon: Send },
-  partial: { cls: 'bg-mist text-slate', Icon: CircleDashed },
-  paid: { cls: 'bg-slate text-panel', Icon: Check },
-  overdue: { cls: 'bg-alert-soft text-alert border border-alert/30', Icon: AlertTriangle },
-  void: { cls: 'text-ink-subtle line-through bg-canvas', Icon: X },
+const styles: Record<DocumentStatus, { cls: string; dot: string }> = {
+  draft: { cls: 'text-ink-muted bg-mist-soft', dot: 'bg-ink-subtle' },
+  sent: { cls: 'bg-mist-soft text-slate', dot: 'bg-slate' },
+  partial: { cls: 'bg-mist text-slate', dot: 'bg-slate' },
+  paid: { cls: 'bg-mist-soft text-slate', dot: 'bg-slate' },
+  overdue: { cls: 'bg-alert-soft text-alert', dot: 'bg-alert' },
+  void: { cls: 'text-ink-subtle line-through bg-canvas', dot: 'bg-ink-subtle' },
 }
 
 export function StatusBadge({ status }: { status: DocumentStatus }) {
@@ -27,7 +27,7 @@ export function StatusBadge({ status }: { status: DocumentStatus }) {
         s.cls,
       )}
     >
-      <s.Icon aria-hidden className="size-3.5" strokeWidth={2.25} />
+      <span aria-hidden className={cn('size-1.5 rounded-full', s.dot)} />
       {t(`status.${status}`)}
     </span>
   )

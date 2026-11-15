@@ -6,6 +6,9 @@ import type { Permission } from '@/lib/permissions'
 import { Guard, NotFound, RequireUser } from './ComingSoon'
 
 const SignInPage = lazy(() => import('@/features/admin/SignInPage').then((m) => ({ default: m.SignInPage })))
+const WelcomePage = lazy(() =>
+  import('@/features/admin/WelcomePage').then((m) => ({ default: m.WelcomePage })),
+)
 const ReportsPage = lazy(() =>
   import('@/features/admin/ReportsPage').then((m) => ({ default: m.ReportsPage })),
 )
@@ -77,6 +80,7 @@ const page = (el: ReactNode, perm?: Permission) => (
 export function App() {
   return (
     <Routes>
+      <Route path="welcome" element={page(<WelcomePage />)} />
       <Route path="sign-in" element={page(<SignInPage />)} />
       <Route
         element={

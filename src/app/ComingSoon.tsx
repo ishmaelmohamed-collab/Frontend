@@ -13,7 +13,7 @@ export function RequireUser({ children }: { children: ReactNode }) {
   const { user, ready } = useSession()
   const { pathname, search } = useLocation()
   if (!ready) return <Skeleton rows={6} label="…" />
-  if (!user) return <Navigate to="/sign-in" replace state={{ from: pathname + search }} />
+  if (!user) return <Navigate to="/welcome" replace state={{ from: pathname + search }} />
   return children
 }
 
@@ -30,10 +30,7 @@ export function NoAccess() {
     <>
       <PageHeader title={t('auth.noAccess')} />
       <Card className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-        <span
-          aria-hidden
-          className="fog-soft border-mist text-slate grid size-14 place-items-center rounded-full border"
-        >
+        <span aria-hidden className="fog-soft text-slate grid size-14 place-items-center rounded-full">
           <Lock className="size-6" />
         </span>
         <p className="text-ink-muted max-w-md text-sm">

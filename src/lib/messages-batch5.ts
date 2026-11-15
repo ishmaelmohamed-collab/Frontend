@@ -1,6 +1,10 @@
 /** UI text for batch 5: sign-in & roles, settings, reports. */
 export const b5En = {
   // sign-in
+  'welcome.tagline': 'Accounting, simplified.',
+  'welcome.body':
+    'Everything your business needs to invoice, get paid, pay bills and close the books — in one place.',
+  'welcome.cta': 'Sign in',
   'auth.title': 'Sign in',
   'auth.sub': 'Use the email and password your Owner set up for you.',
   'auth.email': 'Email',
@@ -123,6 +127,10 @@ export const b5En = {
 } as const
 
 export const b5Ar: Record<keyof typeof b5En, string> = {
+  'welcome.tagline': 'المحاسبة، ببساطة.',
+  'welcome.body':
+    'كل ما تحتاجه شركتك لإصدار الفواتير وتحصيل المدفوعات ودفع الفواتير وإقفال الدفاتر — في مكان واحد.',
+  'welcome.cta': 'تسجيل الدخول',
   'auth.title': 'تسجيل الدخول',
   'auth.sub': 'استخدم البريد الإلكتروني وكلمة المرور التي أعدّها لك المالك.',
   'auth.email': 'البريد الإلكتروني',

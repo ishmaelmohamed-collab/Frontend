@@ -1,5 +1,4 @@
 @import '@fontsource-variable/manrope';
-@import '@fontsource-variable/fraunces';
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource/ibm-plex-sans-arabic/400.css';
 @import '@fontsource/ibm-plex-sans-arabic/500.css';
@@ -8,51 +7,53 @@
 @import 'tailwindcss';
 
 /*
- * ─── "Blue fog" design tokens ────────────────────────────────────
- * Two colours only — misty blue (#DCE6F2) and slate blue (#4A5D78) —
- * plus neutral greys for text and lines. Shades below are mixes of
- * those two, never new hues.
+ * ─── "Ledger-lite" design tokens — calm, utilitarian ERP style ───
+ * Two colours only — soft ink (#2B2E33) and a muted steel blue (#3B6EA5) —
+ * plus neutral greys mixed from the ink. Thin hairlines, small radii, very
+ * light shadows, normal-weight type. Inspired by the calm, functional feel
+ * of everyday business software (breadcrumbs, plain lists, soft status
+ * pills) — not any one product's exact colours or branding.
+ * Warning red stays the one approved exception, used only for overdue
+ * and errors (client decision B, kept 14 Nov 2026).
  *
- * Contrast (checked): slate/white 6.7 · slate/mist 5.3 · ink/white 15.6
- *   muted/white 7.2 · subtle/white 4.8 · input border/white 3.1 (UI part)
+ * Contrast: ink 14.6:1 on white · ink-muted 6.1:1 · ink-subtle 4.5:1 ·
+ *   slate (steel blue) 5.1:1 · line-input 3.1:1 (UI part).
  */
 @theme {
   --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, monospace;
   --font-arabic: 'IBM Plex Sans Arabic', 'Manrope Variable', ui-sans-serif, sans-serif;
 
   /* The two colours */
-  --color-mist: #dce6f2;
-  --color-slate: #4a5d78;
+  --color-ink: #2b2e33; /* soft near-black — text */
+  --color-slate: #3b6ea5; /* muted steel blue — primary actions, links, active states */
 
-  /* Derived from them (lighter mist / darker slate) */
-  --color-mist-soft: #eef3f9; /* hover rows, quiet fills */
-  --color-mist-strong: #c3d1e4; /* pressed light controls, dividers on mist */
-  --color-slate-hover: #3e4f66;
-  --color-slate-pressed: #34435a;
-  --color-slate-disabled: #a9b6c8;
+  /* Derived from the blue (flat tints / shades) */
+  --color-mist: #dde8f2; /* active fill, soft badges */
+  --color-mist-soft: #f2f6fa; /* hover rows, whisper fills */
+  --color-mist-strong: #bcd3e6; /* dividers/pressed chips on mist, chart 2nd series */
+  --color-slate-hover: #30597f;
+  --color-slate-pressed: #264965;
+  --color-slate-disabled: #a9c2d8;
 
-  /* Warning red — client decision B (14 Nov 2026): ONLY for overdue and errors.
-     6.5:1 on white, 6.0:1 on alert-soft. */
+  /* Warning red — client decision B: ONLY for overdue and errors. 6.5:1 on white. */
   --color-alert: #b42318;
   --color-alert-soft: #fef3f2;
 
-  /* Neutrals */
-  --color-canvas: #f6f8fb;
+  /* Neutrals, mixed from the ink */
+  --color-canvas: #f6f7f8;
   --color-panel: #ffffff;
-  --color-ink: #1c2430; /* main text */
-  --color-ink-muted: #4d5866;
-  --color-ink-subtle: #69737f;
-  --color-line: #dde3ea;
-  --color-line-input: #8a94a3;
+  --color-ink-muted: #5b5f66;
+  --color-ink-subtle: #83868d;
+  --color-line: #e3e5e8;
+  --color-line-input: #c6c9ce;
 
-  /* Shape & depth */
-  --radius-control: 8px;
-  --radius-card: 14px;
-  --radius-panel: 20px;
-  --shadow-card: 0 1px 2px rgba(28, 36, 48, 0.04), 0 4px 16px rgba(74, 93, 120, 0.08);
-  --shadow-overlay: 0 16px 40px rgba(28, 36, 48, 0.18);
+  /* Shape & depth — small radii, very light shadows. Nothing bold or hard-edged. */
+  --radius-control: 4px;
+  --radius-card: 6px;
+  --radius-panel: 8px;
+  --shadow-card: 0 1px 2px rgba(20, 20, 22, 0.05), 0 1px 3px rgba(20, 20, 22, 0.06);
+  --shadow-overlay: 0 12px 32px rgba(20, 20, 22, 0.16);
 }
 
 @layer base {
@@ -61,7 +62,7 @@
   }
   body {
     @apply bg-canvas text-ink font-sans antialiased;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.55;
   }
   :lang(ar) {
@@ -70,48 +71,18 @@
   }
   :focus-visible {
     outline: 2px solid var(--color-slate);
-    outline-offset: 2px;
+    outline-offset: 1px;
   }
 }
 
 @layer utilities {
-  /* The fog: misty blue on the reading side, slate on the far side. Mirrors for Arabic. */
-  /* Phones: fog runs top → bottom, so full-width text stays on the misty top. */
-  .fog {
-    background-image: linear-gradient(
-      to bottom,
-      var(--color-mist) 0%,
-      var(--color-mist) 60%,
-      var(--color-slate) 100%
-    );
+  /* The one accent-filled surface — flat, calm, no gradient. */
+  .brand-gradient {
+    background-color: var(--color-slate);
   }
-  /* Wider screens: fog runs across, away from the reading side. */
-  @media (min-width: 640px) {
-    .fog {
-      background-image: linear-gradient(
-        to right,
-        var(--color-mist) 0%,
-        var(--color-mist) 25%,
-        var(--color-slate) 100%
-      );
-    }
-    [dir='rtl'] .fog {
-      background-image: linear-gradient(
-        to left,
-        var(--color-mist) 0%,
-        var(--color-mist) 25%,
-        var(--color-slate) 100%
-      );
-    }
-  }
-  /* A whisper of fog for large surfaces */
+  /* A flat whisper of the brand tint, for highlight panels. */
   .fog-soft {
-    background-image: linear-gradient(
-      160deg,
-      var(--color-panel) 0%,
-      var(--color-mist-soft) 55%,
-      var(--color-mist) 100%
-    );
+    background-color: var(--color-mist-soft);
   }
   /* Money: tabular, aligned to the end of the column, always left-to-right */
   .num {
@@ -155,44 +126,11 @@
   display: none;
 }
 
-/*
- * ─── Theme: Ledger ─────────────────────────────────────────────
- * Client rule: two colours only — warm paper + ink navy. Every surface, line and text
- * shade below comes from those two. Warning red stays for overdue and errors only
- * (client decision B, confirmed "keep red for now", 14 Nov 2026).
- */
-[data-theme='ledger'] {
-  /* paper family */
-  --color-canvas: #fbf7f0;
-  --color-panel: #fffdf8;
-  --color-mist: #e9e0cf;
-  --color-mist-soft: #f6efe3;
-  --color-mist-strong: #ddd2bd;
-  --color-line: #e5dccb;
-  --color-line-input: #8f8471; /* 3.4:1 on panel — visible input borders */
-  /* ink navy family */
-  --color-slate: #1f2a3d;
-  --color-slate-hover: #182232;
-  --color-slate-pressed: #121a28;
-  --color-slate-disabled: #a8b0c0;
-  --color-ink: #1f2a3d;
-  --color-ink-muted: #4a5468;
-  --color-ink-subtle: #5f6a7f; /* 5.0:1 on canvas — readable small text */
-  /* the one approved exception */
-  --color-alert: #b42318;
-  --color-alert-soft: #fbf0ec;
-  --radius-control: 6px;
-  --radius-card: 8px;
-  --radius-panel: 10px;
-  --shadow-card: 0 1px 2px rgba(31, 42, 61, 0.06), 0 4px 14px rgba(31, 42, 61, 0.1);
-  --shadow-overlay: 0 16px 40px rgba(31, 42, 61, 0.24);
-}
-
-/* Motion — subtle entrance + smooth hovers */
+/* Motion — a quick, quiet entrance */
 @keyframes fade-in-up {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -200,7 +138,7 @@
   }
 }
 .page-enter {
-  animation: fade-in-up 0.3s ease-out both;
+  animation: fade-in-up 0.18s ease-out both;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-enter {

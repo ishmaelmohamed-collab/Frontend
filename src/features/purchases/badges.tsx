@@ -16,15 +16,15 @@ import type { BillStatus, OrderStatus, QuoteStatus } from '@/types/domain'
 
 type Look = 'outline' | 'soft' | 'mist' | 'strong' | 'alert' | 'muted'
 const looks: Record<Look, string> = {
-  outline: 'border border-line text-ink-muted bg-panel',
+  outline: 'text-ink-muted bg-mist-soft',
   soft: 'bg-mist-soft text-slate',
   mist: 'bg-mist text-slate',
-  strong: 'border-2 border-slate text-slate bg-panel',
-  alert: 'bg-alert text-white',
+  strong: 'border border-slate text-slate bg-panel',
+  alert: 'bg-alert-soft text-alert',
   muted: 'bg-canvas text-ink-subtle',
 }
 
-/** Status pill: two fog colours + red only for overdue; always icon + word. */
+/** Status chip: two calm colours + red only for overdue; always icon + word. */
 function Pill({ look, Icon, label }: { look: Look; Icon: typeof Check; label: string }) {
   return (
     <span
@@ -33,7 +33,7 @@ function Pill({ look, Icon, label }: { look: Look; Icon: typeof Check; label: st
         looks[look],
       )}
     >
-      <Icon aria-hidden className="size-3.5" strokeWidth={2.25} />
+      <Icon aria-hidden className="size-3.5" strokeWidth={2} />
       {label}
     </span>
   )

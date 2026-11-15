@@ -23,7 +23,7 @@ export function FilterTabs<T extends string>({
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            'min-h-8 rounded-md px-3 text-sm transition-colors duration-150 pointer-coarse:min-h-10',
+            'min-h-8 rounded px-3 text-sm transition-colors duration-100 pointer-coarse:min-h-10',
             value === o.value
               ? 'bg-slate font-semibold text-white'
               : 'text-ink-muted hover:text-ink hover:bg-mist',
@@ -64,7 +64,7 @@ export function SearchInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="border-line-input bg-panel rounded-control placeholder:text-ink-subtle focus:border-slate focus:ring-mist min-h-10 w-full border ps-9 pe-3 text-base focus:ring-4 focus:outline-none sm:text-sm pointer-coarse:min-h-11"
+        className="border-line-input bg-panel rounded-control placeholder:text-ink-subtle focus:border-slate focus:ring-mist min-h-10 w-full border ps-9 pe-3 text-base focus:ring-2 focus:outline-none sm:text-sm pointer-coarse:min-h-11"
       />
     </div>
   )

@@ -19,10 +19,7 @@ export function Skeleton({ rows = 4, label }: { rows?: number; label: string }) 
 export function EmptyState({ title, hint, action }: { title: string; hint?: string; action?: ReactNode }) {
   return (
     <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-      <span
-        aria-hidden
-        className="fog-soft border-mist text-slate mb-1 grid size-14 place-items-center rounded-full border"
-      >
+      <span aria-hidden className="fog-soft text-slate mb-1 grid size-14 place-items-center rounded-full">
         <FileText className="size-6" />
       </span>
       <p className="text-base font-bold">{title}</p>
