@@ -29,7 +29,7 @@ export function DataTable<T extends RowData>({ caption, columns, data, onOpen, e
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full border-collapse text-sm whitespace-nowrap">
           <caption className="sr-only">{caption}</caption>
-          <thead className="bg-mist-soft">
+          <thead>
             {table.getHeaderGroups().map((g) => (
               <tr key={g.id}>
                 {g.headers.map((h) => {
@@ -44,7 +44,7 @@ export function DataTable<T extends RowData>({ caption, columns, data, onOpen, e
                         sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
                       }
                       className={cn(
-                        'border-line text-ink-muted border-y px-4 py-2.5 text-xs font-semibold first:ps-5 last:pe-5',
+                        'border-line text-ink-subtle border-b px-4 py-2.5 text-[11px] font-bold uppercase tracking-wider first:ps-5 last:pe-5',
                         numeric ? 'text-end' : 'text-start',
                       )}
                     >
