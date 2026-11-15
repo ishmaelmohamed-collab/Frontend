@@ -66,11 +66,12 @@ export function StatCard({
   footnote?: ReactNode
   variant?: 'default' | 'featured' | 'overdue'
 }) {
+  const dark = variant === 'featured'
   return (
     <section
       className={cn(
         'rounded-card shadow-card p-5 transition-transform duration-200 hover:-translate-y-0.5',
-        variant === 'featured' && 'fog-soft border-line border',
+        variant === 'featured' && 'bg-slate text-white',
         variant === 'default' && 'bg-panel border-line border',
         variant === 'overdue' && 'bg-panel border-alert border-2',
       )}
@@ -78,14 +79,14 @@ export function StatCard({
       <h2
         className={cn(
           'flex items-center gap-1.5 text-sm',
-          variant === 'overdue' ? 'text-alert font-bold' : 'text-ink-muted',
+          variant === 'overdue' ? 'text-alert font-bold' : dark ? 'text-white/70' : 'text-ink-muted',
         )}
       >
         {variant === 'overdue' && <AlertTriangle aria-hidden className="size-4" />}
         {label}
       </h2>
       <p className={cn('mt-1 text-3xl font-semibold tracking-tight', variant === 'overdue' && 'text-alert')}>{value}</p>
-      {footnote && <div className="text-ink-muted mt-1 text-sm">{footnote}</div>}
+      {footnote && <div className={cn('mt-1 text-sm', dark ? 'text-white/70' : 'text-ink-muted')}>{footnote}</div>}
     </section>
   )
 }
